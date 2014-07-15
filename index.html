@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>ioGrow users behaviour tracker</title>
+  <link href="http://visjs.org/dist/vis.css" rel="stylesheet" type="text/css" />
+  <script src="http://visjs.org/dist/vis.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js">
+  </script>
+  
+</head>
+<body>
+  <h1>IOGrow users behaviour</h1>
+<input id="email" type="text" placeholder="Enter user email"/>
+<input id="show" type="button" value="Search"/>
+<br>
+<div id="mytimeline"></div>
+
+</body>
+
+ <script type="text/javascript">
+ $(document).ready(function(){
+
+   $("#show").click(function(){
+
+      // DOM element where the Timeline will be attached
+    var container = document.getElementById('mytimeline');
+    var email = $('#email').val();
+    // Load the data from Keen IO
+    var query = "https://api.keen.io/3.0/projects/53c4747373f4bb3e45000000/queries/extraction?api_key=cdd7fce6e97a4e1ef2d69ec3eff1c04647cd75865b5d0eb8f2e2693dd256990e2bfffc10726d5264e4be3a0f8041bb562b3dccbfeed1050496e95c6d0612e6b0af99cb0355e758e5b00e85ba054c955245440c65e189ab314528fb71c15964ea651f359f0cdff3c704d00fe9d3bb9ac0&event_collection=events&filters=%5B%7B%22property_name%22%3A%22email%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22"+email+"%22%7D%5D&timezone=3600"
+    console.log(query);
+    $.get(query,function(data) { 
+          var result = [];
+          console.log(data.result);
+          var source = data.result;
+          for (var i = 0; i <= source.length - 1; i++) {
+            //var date = source[i].keen.created_at.substr(0,10);
+            var elem = {id: i+1, content: source[i].action, start: new Date(source[i].keen.created_at)};
+            console.log(elem);
+            result.push(elem);
+          };
+          // Create a DataSet with data (enables two way data binding)
+          var elements = new vis.DataSet(result);
+
+          console.log(result);
+
+          // Configuration for the Timeline
+          var options = {};
+
+          // Create a Timeline
+          var timeline = new vis.Timeline(container, elements, options);
+
+        });
+
+   });
+
+ });
+  </script>
+
+</html>
