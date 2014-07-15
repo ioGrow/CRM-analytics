@@ -6,14 +6,23 @@
   <script src="http://visjs.org/dist/vis.js"></script>
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js">
   </script>
-  
+   <script type="text/javascript">
+  !function(a,b){if(void 0===b[a]){b["_"+a]={},b[a]=function(c){b["_"+a].clients=b["_"+a].clients||{},b["_"+a].clients[c.projectId]=this,this._config=c},b[a].ready=function(c){b["_"+a].ready=b["_"+a].ready||[],b["_"+a].ready.push(c)};for(var c=["addEvent","setGlobalProperties","trackExternalLink","on"],d=0;d<c.length;d++){var e=c[d],f=function(a){return function(){return this["_"+a]=this["_"+a]||[],this["_"+a].push(arguments),this}};b[a].prototype[e]=f(e)}var g=document.createElement("script");g.type="text/javascript",g.async=!0,g.src="https://d26b395fwzu5fz.cloudfront.net/3.0.4/keen.min.js";var h=document.getElementsByTagName("script")[0];h.parentNode.insertBefore(g,h)}}("Keen",this);
+  </script>
+  <script type="text/javascript" src="keen-iogrow.js" ></script>
+ 
 </head>
 <body>
   <h1>IOGrow users behaviour</h1>
 <input id="email" type="text" placeholder="Enter user email"/>
 <input id="show" type="button" value="Search"/>
 <br>
+<h2>Timeline</h2>
+<br>
 <div id="mytimeline"></div>
+<br>
+<h2>Most used actions</h2>
+<div id="mychart"></div>
 
 </body>
 
@@ -30,19 +39,14 @@
     console.log(query);
     $.get(query,function(data) { 
           var result = [];
-          console.log(data.result);
           var source = data.result;
           for (var i = 0; i <= source.length - 1; i++) {
             //var date = source[i].keen.created_at.substr(0,10);
             var elem = {id: i+1, content: source[i].action, start: new Date(source[i].keen.created_at)};
-            console.log(elem);
-            result.push(elem);
+              result.push(elem);
           };
           // Create a DataSet with data (enables two way data binding)
           var elements = new vis.DataSet(result);
-
-          console.log(result);
-
           // Configuration for the Timeline
           var options = {};
 
@@ -50,6 +54,20 @@
           var timeline = new vis.Timeline(container, elements, options);
 
         });
+
+    // show statisctics
+
+      Keen.ready(function(){
+      var query = new Keen.Query("count", {
+          eventCollection: "events",
+          groupBy: "action",
+          filters: [{"property_name":"email","operator":"eq","property_value":email}]
+        });
+        client.draw(query, document.getElementById("mychart"), {
+          // Custom configuration here
+        });
+      });
+
 
    });
 
