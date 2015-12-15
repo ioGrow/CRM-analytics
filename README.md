@@ -1,9 +1,5 @@
 # [Io/Ads](http://github.com/proserve/ioads)
-
-Io Advertiser : best way to manage your social media campaigns.
-
 ***
-
 ## Quick Start
 
 create a python virtual environment called venv inside your app 
@@ -22,7 +18,7 @@ $ sudo npm -g install grunt-cli  bower
 $ cd static
 $ npm install
 $ bower install
-$ grunt watch:all
+$ gulp serve
 ```
 
 Finally, setup the google_appengine sdk end python interpreter then run the app in your browser.
