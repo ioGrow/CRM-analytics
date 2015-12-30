@@ -1,5 +1,5 @@
 describe('service githubContributor', () => {
-  beforeEach(angular.mock.module('gulpAngular'));
+  beforeEach(angular.mock.module('CRMAnalytics'));
 
   it('should be registered', inject(githubContributor => {
     expect(githubContributor).not.toEqual(null);

@@ -47,7 +47,7 @@ module.exports = function(config) {
 
     ngHtml2JsPreprocessor: {
       stripPrefix: conf.paths.src + '/',
-      moduleName: 'gulpAngular'
+      moduleName: 'CRMAnalytics'
     },
 
     logLevel: 'WARN',

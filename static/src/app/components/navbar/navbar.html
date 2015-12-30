@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="https://github.com/Swiip/generator-gulp-angular">
-        <span class="glyphicon glyphicon-home"></span> Gulp Angular
+        <span class="glyphicon glyphicon-home"></span> Iogrow CRM Analytics App
       </a>
     </div>
 
@@ -11,6 +11,7 @@
         <li class="active"><a ng-href="#">Home</a></li>
         <li><a ng-href="#">About</a></li>
         <li><a ng-href="#">Contact</a></li>
+        <li ng-show="vm.isAuthenticated()"><a ng-href="#" ng-click="vm.logout()">Logout</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right acme-navbar-text">

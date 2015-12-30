@@ -1,5 +1,5 @@
 {
-  "name": "gulpAngular",
+  "name": "CRMAnalytics",
   "version": "0.0.0",
   "dependencies": {
     "angular-sanitize": "~1.4.2",
@@ -13,7 +13,13 @@
     "angular-toastr": "~1.5.0",
     "moment": "~2.10.6",
     "animate.css": "~3.4.0",
-    "angular": "~1.4.2"
+    "angular": "~1.4.2",
+    "bootstrap-social": "~4.11.0",
+    "font-awesome": "~4.5.0",
+    "satellizer": "~0.13.3",
+    "highcharts-ng": "~0.0.11",
+    "highcharts": "~4.2.1",
+    "angular-daterangepicker": "~0.2.2"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.2"
@@ -27,6 +33,17 @@
         "assets/fonts/bootstrap/glyphicons-halflings-regular.ttf",
         "assets/fonts/bootstrap/glyphicons-halflings-regular.woff",
         "assets/fonts/bootstrap/glyphicons-halflings-regular.woff2"
+      ]
+    },
+    "font-awesome": {
+      "main": [
+        "scss/font-awesome.scss",
+        "fonts/fontawesome-webfont.eot",
+        "fonts/fontawesome-webfont.svg",
+        "fonts/fontawesome-webfont.ttf",
+        "fonts/fontawesome-webfont.woff",
+        "fonts/fontawesome-webfont.woff2",
+        "fonts/FontAwesome.otf"
       ]
     }
   },

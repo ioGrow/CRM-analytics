@@ -1,7 +1,7 @@
 describe('controllers', () => {
   let vm;
 
-  beforeEach(angular.mock.module('gulpAngular'));
+  beforeEach(angular.mock.module('CRMAnalytics'));
 
   beforeEach(inject(($controller, webDevTec, toastr) => {
     spyOn(webDevTec, 'getTec').and.returnValue([{}, {}, {}, {}, {}]);

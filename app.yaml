@@ -1,4 +1,4 @@
-application: starter
+application: crm-analytics
 version: 1
 runtime: python27
 api_version: 1
@@ -10,42 +10,62 @@ handlers:
   upload: favicon\.ico
 
 # dev mod urls
-#- url: /bower_components
-#  static_dir: static/bower_components/
-#
-#- url: /app/(.*\.html)$
-#  mime_type: text/html
-#  static_files: static/src/app/\1
-#  upload: static/src/app/(.*\.html)$
-#
-#- url: /assets/images/(.*\.(gif|png|jpg))
-#  static_files: static/src/assets/images/\1
-#  upload: static/src/assets/images/(.*\.(gif|png|jpg))
-#
-#- url: /app/(.+)
-#  static_files: static/.tmp/serve/app/\1
-#  upload: static/.tmp/serve/app/(.*)
-#
-#- url: /index.html
-#  static_files: static/.tmp/serve/index.html
-#  upload: static/.tmp/serve/index.html
-#
-#- url: /
-#  static_files: static/.tmp/serve/index.html
-#  upload: static/.tmp/serve/index.html
+- url: /bower_components
+  static_dir: static/bower_components/
 
-# prod
-- url: /(.+)
-  static_files: static/dist/\1
-  upload: static/dist/(.*)
+- url: /app/(.*\.html)$
+  mime_type: text/html
+  static_files: static/src/app/\1
+  upload: static/src/app/(.*\.html)$
+
+- url: /assets/images/(.*\.(gif|png|jpg))
+  static_files: static/src/assets/images/\1
+  upload: static/src/assets/images/(.*\.(gif|png|jpg))
+
+- url: /app/(.+)
+  static_files: static/.tmp/serve/app/\1
+  upload: static/.tmp/serve/app/(.*)
+
+- url: /index.html
+  static_files: static/.tmp/serve/index.html
+  upload: static/.tmp/serve/index.html
 
 - url: /
-  static_files: static/dist/index.html
-  upload: static/dist/index.html
+  static_files: static/.tmp/serve/index.html
+  upload: static/.tmp/serve/index.html
+
+# prod
+#- url: /
+#  static_files: static/dist/index.html
+#  upload: static/dist/index.html
+#
+#- url: /(.*\.html)$
+#  mime_type: text/html
+#  static_files: static/dist/\1
+#  upload: static/dist/(.*\.html)$
+#
+#- url: /(.*\.css)$
+#  mime_type: text/css
+#  static_files: static/dist/\1
+#  upload: static/dist/(.*\.css)$
+#
+#- url: /(.*\.js)$
+#  mime_type: application/js
+#  static_files: static/dist/\1
+#  upload: static/dist/(.*\.js)$
+#
+#- url: /fonts
+#  static_dir: static/dist/fonts
+
+- url: /.*
+  script: main.app
+
 
 libraries:
 - name: webapp2
   version: "2.5.2"
+- name: pycrypto
+  version: latest
 
 skip_files:
   - ^(.*/)?app\.yaml
@@ -66,4 +86,6 @@ skip_files:
   - ^fabfile\.py
   - ^testrunner\.py
   - ^grunt\.js
-  - ^node_modules/(.*/)?
+  - static/node_modules/(.*/)?
+  - ^static/gulp/.*
+  - ^static/e2e/.*

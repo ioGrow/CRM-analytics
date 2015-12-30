@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="panel panel-success col-sm-6 col-sm-offset-3" style="margin-top: 60px;">
+        <form method="post" role="form">
+            <div class="panel-heading">Your Google Analytics Accounts</div>
+            <div class="panel-body">
+                <legend>Choose an account to get data from :</legend>
+                <ol>
+                    <li ng-repeat="property in properties">
+                        Property :<a href="{{ property.websiteUrl }}" target="_blank">{{ property.websiteUrl }}</a>
+                        <div class="radio" ng-repeat="(key, value) in property.profiles">
+                            <label>
+                                <input type="radio" name="profile_id" ng-model="selectedProfile.id" value="{{ key }}">
+                                <b>{{ value }}</b>
+                            </label>
+                        </div>
+                    </li>
+
+                </ol>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" class="btn btn-primary" ng-click="selectProperty()">Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
