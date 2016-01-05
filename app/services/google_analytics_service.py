@@ -47,10 +47,14 @@ class GoogleAnalyticsService(object):
                                        profiles=profiles))
         return properties
 
-    def get_data_by_date(self, profile_id, metrics_list, filters_list, start_date='30daysAgo', end_date='today'):
+    def get_data(self, profile_id, metrics_list, filters_list, dimensions_list, sorts_list,
+                 start_date='30daysAgo',
+                 end_date='today'):
         # Use the Analytics Service Object to query the Core Reporting API
         metrics = join_list(metrics_list) if len(metrics_list) else abort(500, message="you should provide metrics")
         filters = join_list(filters_list) if len(filters_list) else None
+        dimensions = join_list(dimensions_list) if len(dimensions_list) else None
+        sorts = join_list(sorts_list) if len(sorts_list) else None
 
         return self.service.data().ga().get(
             ids='ga:' + profile_id,
@@ -58,7 +62,14 @@ class GoogleAnalyticsService(object):
             end_date=end_date,
             start_index=1,
             max_results=10000,
-            dimensions='ga:date',
+            dimensions=dimensions,
             metrics=metrics,
-            sort='ga:date',
+            sort=sorts,
             filters=filters).execute()
+
+    def get_data_by_date(self, profile_id, metrics_list, filters_list, start_date, end_date):
+        # Use the Analytics Service Object to query the Core Reporting API
+        return self.get_data(profile_id, metrics_list, filters_list, ['date'], ['date'], start_date, end_date)
+
+    def get_data_by_source(self, profile_id, metrics_list, filters_list, start_date, end_date):
+        return self.get_data(profile_id, metrics_list, filters_list, ['source'], [], start_date, end_date)

@@ -12,6 +12,7 @@ $fa-font-path: "../../bower_components/font-awesome/fonts";
  */
 // bower:scss
 // endbower
+@import "login/views/login.scss";
 
 .browsehappy {
   margin: 0.2em 0;
@@ -27,6 +28,7 @@ $fa-font-path: "../../bower_components/font-awesome/fonts";
     width: 50px;
   }
 }
+
 
 /**
  *  Do not remove the comments below. It's the markers used by gulp-inject to inject

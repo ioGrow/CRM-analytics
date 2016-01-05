@@ -5,24 +5,31 @@
     </div>
 
     <div class="jumbotron text-center" ng-hide="main.isAuthenticated()">
-        <div class="col-sm-4 col-sm-offset-4">
-            <a class="btn btn-block btn-social btn-google" ng-click="main.authenticate('google')">
-                <span class="fa fa-google-plus"></span>
-                Sign in with Google
-            </a>
-        </div>
+        <h1></h1>
     </div>
 
-    <div class="jumbotron" ng-show="main.isAuthenticated()">
-        <div class="col-sm-4" style="margin-bottom: 20px">
-            <input date-range-picker class="form-control date-picker" type="text" ng-model="main.dateRange"
-                   options="main.dataPickerOptions" placeholder="Pick a date range ... " style="text-align: center"/>
+    <div ng-show="main.isAuthenticated()">
+        <div class="col-md-8 col-md-offset-2 ">
+            <input date-range-picker class="form-control date-picker" type="text"
+                   style="text-align: center"
+                   ng-model="main.dateRange" options="main.dataPickerOptions"
+                   placeholder="Pick a date range ... "/>
         </div>
-        <highchart ng-show="main.newVisitorsChartConfig" config="main.newVisitorsChartConfig"
-                   style="margin-bottom: 20px"></highchart>
-        <highchart ng-show="main.bounceRateChartConfig" config="main.bounceRateChartConfig" style="margin-bottom:
-        20px"></highchart>
+        <div class="panel col-md-10 col-md-offset-1" style="margin-top: 20px;border: 1px solid black;"
+             ng-hide="main.isLoading" id="chart-container">
+
+            <highchart config="main.newVisitorsChartConfig" ng-show="main.newVisitorsChartConfig"></highchart>
+
+            <highchart ng-show="main.conversionRateChartConfig" config="main.conversionRateChartConfig"
+                       style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.bounceRateChartConfig" config="main.bounceRateChartConfig"
+                       style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.bounceRateChartConfig" config="main.userBySigninClickChartConfig"
+                       style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.weeklyNewUsersChartConfig" config="main.weeklyNewUsersChartConfig"
+                       style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.newUsersBySourceChartConfig" config="main.newUsersBySourceChartConfig"
+                       style="margin-bottom:20px"></highchart>
+        </div>
     </div>
-
-
 </div>

@@ -1,5 +1,5 @@
 from app.config import config
-from app.models.google_credential import GoogleAnalyticsCredential, GoogleCredential
+from app.models.google_credential import GoogleCredential
 from app.services.authentication_service import AuthenticationService
 from flask import g
 from flask.ext.restful import Resource, abort
@@ -16,3 +16,5 @@ class BaseResource(Resource):
         self.g_credential = GoogleCredential.get_by_id(g.user_id)
         if not self.g_credential:
             abort(404)
+
+

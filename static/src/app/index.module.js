@@ -9,9 +9,10 @@ import { WebDevTecService } from '../app/components/webDevTec/webDevTec.service'
 import { NavbarDirective } from '../app/components/navbar/navbar.directive';
 import { MalarkeyDirective } from '../app/components/malarkey/malarkey.directive';
 import '../app/on_boarding/onBoarding.module';
+import '../app/login/login.module';
 
-angular.module('CRMAnalytics', ['restangular', 'ui.router', 'toastr', 'satellizer', 'highcharts-ng','daterangepicker',
-    'CRMAnalytics.onBoarding'])
+angular.module('CRMAnalytics', ['restangular', 'ui.router', 'toastr', 'highcharts-ng','daterangepicker',
+    'CRMAnalytics.onBoarding', 'CRMAnalytics.login'])
     .constant('malarkey', malarkey)
     .constant('moment', moment)
     .config(config)
