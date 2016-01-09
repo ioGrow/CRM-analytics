@@ -9,15 +9,32 @@ export class MainController {
             return $auth.isAuthenticated()
         };
         vm.isLoading = true;
-         function stopLoading () {
+        function stopLoading() {
             vm.isLoading = false;
         }
+
         Pace.on('hide', stopLoading());
         vm.dateRange = {
             startDate: moment().subtract(29, 'days'),
             endDate: moment().add(1, 'days')
         };
+        vm.changeAllChartsUnit = function (unit) {
+            vm.newVisitorsChartConfig.series[0].data = vm.changeChartUnit(unit, vm.newVisitorsChartConfig.series[0].data)
 
+        }
+        vm.changeChartUnit = function (unit, data) {
+            var result = [];
+            var item = data[0];
+            for (var i = 0; i < data.length; i++) {
+                if ((i + 1) % unit == 0 && i != 0) {
+                    result.push(item)
+                    item = data[i];
+                } else {
+                    item[1] += data[i][1]
+                }
+            }
+            return result;
+        }
         vm.getNewVisitors = function (startDate, endDate) {
             Restangular.one('new_visitors').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
@@ -33,6 +50,26 @@ export class MainController {
                 vm.newVisitorsChartConfig.options.title.text = 'New Visitors';
                 vm.newVisitorsChartConfig.series = [{data: data, name: 'new visitors'}];
                 vm.newVisitorsChartConfig.loading = false;
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
+        vm.getTotalUsers = function (startDate, endDate) {
+            Restangular.one('total_users').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD')
+                }
+            ).then(function (resp) {
+                var data = [];
+                for (var i = 0; i < resp.data.length; i++) {
+                    var item = resp.data[i];
+                    data.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                }
+                vm.totalUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.totalUsersChartConfig.options.chart.type = 'line';
+                vm.totalUsersChartConfig.options.title.text = 'Total Users';
+                vm.totalUsersChartConfig.series = [{data: data, name: 'new users'}];
+                vm.totalUsersChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -146,7 +183,7 @@ export class MainController {
         };
 
         vm.weeklyNewUsers = function (startDate, endDate) {
-            Restangular.one('weekly_new_users').get({
+            Restangular.one('daily_new_users').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
@@ -159,7 +196,7 @@ export class MainController {
                 vm.weeklyNewUsersChartConfig = angular.copy(vm.chartConfig);
                 vm.weeklyNewUsersChartConfig.xAxis.type = 'category';
                 vm.weeklyNewUsersChartConfig.options.chart.type = 'column';
-                vm.weeklyNewUsersChartConfig.options.title.text = 'Weekly new Users';
+                vm.weeklyNewUsersChartConfig.options.title.text = 'Daily new Users';
                 vm.weeklyNewUsersChartConfig.series.push({
                     data: data, name: 'Weekly new Users', dataLabels: {
                         enabled: true,
@@ -208,25 +245,25 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.haveAnalytics = function () {
-            var result = true;
-            return Restangular.one('accounts').get().then(function (resp) {
-                $log.info(resp.data)
-            }).catch(function () {
-                result = false;
-            });
+        /*
+         vm.haveAnalytics = function () {
+         var result = true;
+         return Restangular.one('accounts').get().then(function (resp) {
+         $log.info(resp.data)
+         }).catch(function () {
+         result = false;
+         });
 
-        }
+         }
+         */
         if (vm.isAuthenticated()) {
-            if (vm.haveAnalytics()) {
-                vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
-                vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
-                vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
-                vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
-                vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-                vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
-            }
-
+            vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getTotalUsers(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
         }
 
         vm.dataPickerOptions = {
@@ -239,6 +276,7 @@ export class MainController {
             eventHandlers: {
                 'apply.daterangepicker': function () {
                     vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
+                    vm.getTotalUsers(vm.dateRange.startDate, vm.dateRange.endDate);
                     vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
                     vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
                     vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
@@ -345,6 +383,7 @@ export class MainController {
             awesomeThing.rank = Math.random();
         });
     }
+
 
     showToastr() {
         this.toastr.info('Fork <a href="https://github.com/Swiip/generator-gulp-angular"' +

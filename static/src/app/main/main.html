@@ -9,11 +9,19 @@
     </div>
 
     <div ng-show="main.isAuthenticated()">
-        <div class="col-md-8 col-md-offset-2 ">
+        <div class="col-md-5 col-md-offset-2 ">
             <input date-range-picker class="form-control date-picker" type="text"
                    style="text-align: center"
                    ng-model="main.dateRange" options="main.dataPickerOptions"
                    placeholder="Pick a date range ... "/>
+        </div>
+        <div class="btn-group col-md-3" role="group" aria-label="...">
+            <button type="button" class="btn btn-default"
+            ng-click="main.changeChartUnit(1, main.bounceRateChartConfig.series[0].data)">Day</button>
+            <button type="button" ng-click="main.changeAllChartsUnit(7)"
+                    class="btn btn-default">Week</button>
+            <button type="button" class="btn btn-default"
+            ng-click="main.changeChartUnit(30, main.bounceRateChartConfig.series[0].data)">Month</button>
         </div>
         <div class="panel col-md-10 col-md-offset-1" style="margin-top: 20px;border: 1px solid black;"
              ng-hide="main.isLoading" id="chart-container">
@@ -24,12 +32,15 @@
                        style="margin-bottom:20px"></highchart>
             <highchart ng-show="main.bounceRateChartConfig" config="main.bounceRateChartConfig"
                        style="margin-bottom:20px"></highchart>
-            <highchart ng-show="main.bounceRateChartConfig" config="main.userBySigninClickChartConfig"
+            <highchart ng-show="main.userBySigninClickChartConfig" config="main.userBySigninClickChartConfig"
                        style="margin-bottom:20px"></highchart>
             <highchart ng-show="main.weeklyNewUsersChartConfig" config="main.weeklyNewUsersChartConfig"
                        style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.totalUsersChartConfig" config="main.totalUsersChartConfig"
+                       style="margin-bottom:20px"></highchart>
             <highchart ng-show="main.newUsersBySourceChartConfig" config="main.newUsersBySourceChartConfig"
                        style="margin-bottom:20px"></highchart>
+
         </div>
     </div>
 </div>

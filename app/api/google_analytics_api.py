@@ -7,6 +7,7 @@ from app.api import BaseResource
 from app.config import config
 from app.models.google_credential import GoogleAnalyticsCredential
 from app.services.google_analytics_service import GoogleAnalyticsService
+from app.services.iogrow_service import IoGrowService
 from app.services.mixpanel_service import MixPanelService
 from flask.ext.restful import inputs
 from flask_restful import reqparse, abort

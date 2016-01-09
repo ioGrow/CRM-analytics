@@ -15,9 +15,14 @@ class MixPanelService(object):
         )
 
     def get_event_by_date(self, event, unit, interval, units=0):
+        # ee = self.api.request(['events', 'names'], {'type': 'unique'})
         data = self.api.request(['events'],
                                 {'event': [event], 'unit': unit, 'interval': interval,
-                                 'type': 'general'}).get('data')
+                                 'type': 'unique'}).get('data')
+        # self.api.ENDPOINT = 'https://data.mixpanel.com/api'
+        # data = self.api.request(['export'],
+        #                         {'from_date': '2015-12-01', 'to_date': '2016-01-01', })
+
         result = []
         for item in data.get('series'):
             if units == 0:
@@ -49,4 +54,9 @@ class MixPanelService(object):
             rate = 0 if sign_in_clicker[0] == 0 else float(int(user[0])) * 100 / sign_in_clicker[0]
             item = [round(rate, 2), user[1]]
             result.append(item)
+        return result
+
+    def active_users(self, start_date, end_date):
+        dates, interval = get_interval_valid_dates(end_date, start_date)
+        result = self.get_event_by_date('Active users ioGrow', 'day', interval, dates)
         return result

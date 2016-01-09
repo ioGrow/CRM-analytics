@@ -1,6 +1,7 @@
 from app.api.google_analytics_api import Profile, GANewVisitors, GABounceRate, Accounts, GANewVisitorsBySource, \
     ConversionRates
 from app.api.google_analytics_api import Property
+from app.api.intercom_api import TotalUsers
 from app.api.mixpanel_api import WeeklyNewUsers, DailyNewUsers, ClicksByUsers
 from app.handlers.auth.google import google_oauth2_callback
 from flask import Flask
@@ -19,6 +20,7 @@ api.add_resource(GABounceRate, '/bounce_rate')
 api.add_resource(Accounts, '/accounts')
 api.add_resource(WeeklyNewUsers, '/weekly_new_users')
 api.add_resource(DailyNewUsers, '/daily_new_users')
+api.add_resource(TotalUsers, '/total_users')
 api.add_resource(GANewVisitorsBySource, '/new_users_by_source')
 api.add_resource(ConversionRates, '/conversion_rates')
 api.add_resource(ClicksByUsers, '/click_by_users')

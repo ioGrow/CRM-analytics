@@ -1,5 +1,6 @@
 from app.api import BaseResource
-from app.models.google_credential import GoogleAnalyticsCredential
+from app.config import config
+from app.services.intercom_service import IntercomService
 from flask.ext.restful import inputs
 from flask_restful import reqparse
 
@@ -8,10 +9,11 @@ parser.add_argument('startDate', type=inputs.date, help='Rate cannot be converte
 parser.add_argument('endDate', type=inputs.date, help='Rate cannot be converted')
 
 
-class Accounts(BaseResource):
+class TotalUsers(BaseResource):
     def get(self):
-        resp = {'google_analytics': None}
-        analytics_credential = GoogleAnalyticsCredential.get_by_user_id(self.g_credential.key.id())
-        if analytics_credential:
-            resp['google_analytics'] = analytics_credential.profile_id
-        return resp
+        args = parser.parse_args()
+        end_date = args["endDate"]
+        start_date = args["startDate"]
+        service = IntercomService(config.get("intercom_app_id"), config.get("intercom_app_api_key"))
+        resp = service.new_visitors(start_date, end_date)
+        return {'data': resp}
