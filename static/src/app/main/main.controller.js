@@ -1,14 +1,17 @@
 export class MainController {
-    constructor($timeout, $auth, $state, $log, webDevTec, toastr, Restangular, moment) {
+    constructor($timeout, $auth, $state, webDevTec, toastr, Restangular, moment) {
         'ngInject';
         var vm = this;
         vm.awesomeThings = [];
         vm.classAnimation = '';
         vm.toastr = toastr;
+        vm.unit = 1;
+        vm.isLoading = true;
+
         vm.isAuthenticated = function () {
             return $auth.isAuthenticated()
         };
-        vm.isLoading = true;
+
         function stopLoading() {
             vm.isLoading = false;
         }
@@ -19,37 +22,63 @@ export class MainController {
             endDate: moment().add(1, 'days')
         };
         vm.changeAllChartsUnit = function (unit) {
-            vm.newVisitorsChartConfig.series[0].data = vm.changeChartUnit(unit, vm.newVisitorsChartConfig.series[0].data)
-
+            vm.newVisitorsChartConfig.series[0]['data'] = (unit == 1) ? vm.newVisitorsData : vm.changeChartUnit(unit, vm.newVisitorsData);
         }
         vm.changeChartUnit = function (unit, data) {
+            if (vm.unit == unit) return;
+            else vm.unit = unit;
             var result = [];
             var item = data[0];
             for (var i = 0; i < data.length; i++) {
-                if ((i + 1) % unit == 0 && i != 0) {
-                    result.push(item)
+                if (i % unit == 0 && i != 0) {
+                    item[0] = data[i][0];
+                    result.push(item);
                     item = data[i];
                 } else {
-                    item[1] += data[i][1]
+                    item[1] += data[i][1];
                 }
             }
             return result;
         }
+
         vm.getNewVisitors = function (startDate, endDate) {
             Restangular.one('new_visitors').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
             ).then(function (resp) {
-                var data = [];
+                vm.newVisitorsData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                    vm.newVisitorsData.push([moment(item[1]).valueOf(), parseInt(item[0])])
                 }
+                var data = angular.copy(vm.newVisitorsData);
                 vm.newVisitorsChartConfig = angular.copy(vm.chartConfig);
                 vm.newVisitorsChartConfig.options.title.text = 'New Visitors';
                 vm.newVisitorsChartConfig.series = [{data: data, name: 'new visitors'}];
                 vm.newVisitorsChartConfig.loading = false;
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
+        vm.getGrowthRate = function (startDate, endDate) {
+            Restangular.one('growth_rate').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD')
+                }
+            ).then(function (resp) {
+                vm.growthRateData = [];
+                for (var i = 0; i < resp.data.length; i++) {
+                    var item = resp.data[i];
+                    vm.growthRateData.push([moment(item[1]).valueOf(), item[0]])
+                }
+                var data = angular.copy(vm.growthRateData);
+                vm.growthRateChartConfig = angular.copy(vm.chartConfig);
+                vm.growthRateChartConfig.options.chart.type = null;
+                vm.growthRateChartConfig.options.title.text = 'Growth Rate';
+                vm.growthRateChartConfig.series = [{data: data, name: 'Growth Rate'}];
+                vm.growthRateChartConfig.options.tooltip = {valueSuffix: '%'}
+                vm.growthRateChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -60,13 +89,14 @@ export class MainController {
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
             ).then(function (resp) {
-                var data = [];
+                vm.totalUsersData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                    vm.totalUsersData.push([moment(item[1]).valueOf(), parseInt(item[0])])
                 }
+                var data = angular.copy(vm.totalUsersData);
                 vm.totalUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.totalUsersChartConfig.options.chart.type = 'line';
+                vm.totalUsersChartConfig.options.chart.type = null;
                 vm.totalUsersChartConfig.options.title.text = 'Total Users';
                 vm.totalUsersChartConfig.series = [{data: data, name: 'new users'}];
                 vm.totalUsersChartConfig.loading = false;
@@ -81,14 +111,16 @@ export class MainController {
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
             ).then(function (resp) {
-                var data = [];
+                vm.bounceRateData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                    vm.bounceRateData.push([moment(item[1]).valueOf(), parseInt(item[0])])
                 }
+                var data = angular.copy(vm.bounceRateData);
                 vm.bounceRateChartConfig = angular.copy(vm.chartConfig);
                 vm.bounceRateChartConfig.options.chart.type = 'column';
                 vm.bounceRateChartConfig.options.title.text = 'Bounce Rate';
+                vm.bounceRateChartConfig.options.tooltip = {valueSuffix: '%'}
                 vm.bounceRateChartConfig.options.subtitle.text = 'Visits in which the person left your site from' +
                     ' the entrance page without interacting with the page';
                 vm.bounceRateChartConfig.series.push({
@@ -116,18 +148,18 @@ export class MainController {
                 "endDate": endDate.format('YYYY-MM-DD')
             }).
             then(function (resp) {
-                $log.info(resp)
-                var data = [];
+                vm.conversionRateData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([moment(item[1]).valueOf(), parseFloat(item[0])])
+                    vm.conversionRateData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
                 }
                 vm.conversionRateChartConfig = angular.copy(vm.chartConfig);
                 vm.conversionRateChartConfig.options.chart.type = 'column';
                 vm.conversionRateChartConfig.options.title.text = 'Conversion Rate';
                 vm.conversionRateChartConfig.options.subtitle.text = 'Convesion rate (New users/ visitors)';
+                vm.conversionRateChartConfig.options.tooltip = {valueSuffix: '%'}
                 vm.conversionRateChartConfig.series.push({
-                    data: data, name: 'Conversion Rate', dataLabels: {
+                    data: vm.conversionRateData, name: 'Conversion Rate', dataLabels: {
                         enabled: true,
                         rotation: -90,
                         color: '#FFFFFF',
@@ -152,12 +184,12 @@ export class MainController {
                 }
             ).
             then(function (resp) {
-                $log.info(resp)
-                var data = [];
+                vm.clickByUsersData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([moment(item[1]).valueOf(), parseFloat(item[0])])
+                    vm.clickByUsersData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
                 }
+                var data = angular.copy(vm.clickByUsersData);
                 vm.userBySigninClickChartConfig = angular.copy(vm.chartConfig);
                 vm.userBySigninClickChartConfig.options.chart.type = 'column';
                 vm.userBySigninClickChartConfig.options.title.text = 'Users/sign_in clickers';
@@ -188,11 +220,12 @@ export class MainController {
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
             ).then(function (resp) {
-                var data = [];
+                vm.dailyNewUsersData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    data.push([item[1], parseInt(item[0])])
+                    vm.dailyNewUsersData.push([item[1], parseInt(item[0])])
                 }
+                var data = angular.copy(vm.dailyNewUsersData);
                 vm.weeklyNewUsersChartConfig = angular.copy(vm.chartConfig);
                 vm.weeklyNewUsersChartConfig.xAxis.type = 'category';
                 vm.weeklyNewUsersChartConfig.options.chart.type = 'column';
@@ -222,25 +255,59 @@ export class MainController {
                     "endDate": endDate.format('YYYY-MM-DD')
                 }
             ).then(function (resp) {
-                var data = [];
+                vm.newUsersBySourceData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
                     if (i == 0) {
-                        data.push({
+                        vm.newUsersBySourceData.push({
                             name: item[0],
                             y: parseInt(item[1]),
                             sliced: true,
                             selected: true
                         });
                     } else {
-                        data.push([item[0], parseInt(item[1])]);
+                        vm.newUsersBySourceData.push([item[0], parseInt(item[1])]);
                     }
                 }
+                var data = angular.copy(vm.newUsersBySourceData);
                 vm.newUsersBySourceChartConfig = angular.copy(vm.pieChartConfig);
-                $log.info(data);
                 vm.newUsersBySourceChartConfig.series.push({data: data, type: 'pie', name: 'new users by source'});
                 vm.newUsersBySourceChartConfig.title = {text: "New Users by Source"};
                 vm.newUsersBySourceChartConfig.loading = false;
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
+        vm.getActiveUsers = function (startDate, endDate) {
+            Restangular.one('active_users').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD')
+                }
+            ).then(function (resp) {
+                vm.activeUsersData = [];
+                for (var i = 0; i < resp.data.length; i += 1) {
+                    var item = resp.data[i];
+                    vm.activeUsersData.push([moment(item[1]).valueOf(), parseInt(item[0])]);
+                }
+                var data = angular.copy(vm.activeUsersData);
+                vm.activeUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.activeUsersChartConfig.series.push({
+                    data: data, name: 'Active Users', dataLabels: {
+                        enabled: true,
+                        color: '#000',
+                        align: 'right',
+                        format: '{point.y}', // one decimal
+                        y: 0, // 10 pixels down from the top
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'Verdana, sans-serif'
+                        }
+                    }
+                });
+                vm.activeUsersChartConfig.options.chart.type = null;
+                vm.activeUsersChartConfig.options.title.text = "Active Users";
+                vm.activeUsersChartConfig.loading = false;
+
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -256,14 +323,20 @@ export class MainController {
 
          }
          */
-        if (vm.isAuthenticated()) {
+        function runAll() {
             vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getGrowthRate(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getTotalUsers(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate);
+        }
+
+        if (vm.isAuthenticated()) {
+            runAll()
         }
 
         vm.dataPickerOptions = {
@@ -275,13 +348,7 @@ export class MainController {
             },
             eventHandlers: {
                 'apply.daterangepicker': function () {
-                    vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.getTotalUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-                    vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
+                    runAll()
                 }
             },
             opens: 'center',

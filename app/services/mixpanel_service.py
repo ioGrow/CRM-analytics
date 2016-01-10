@@ -15,13 +15,13 @@ class MixPanelService(object):
         )
 
     def get_event_by_date(self, event, unit, interval, units=0):
-        # ee = self.api.request(['events', 'names'], {'type': 'unique'})
+        ee = self.api.request(['events', 'names'], {'type': 'unique'})
         data = self.api.request(['events'],
-                                {'event': [event], 'unit': unit, 'interval': interval,
+                                {'event': ee, 'unit': unit, 'interval': interval,
                                  'type': 'unique'}).get('data')
         # self.api.ENDPOINT = 'https://data.mixpanel.com/api'
         # data = self.api.request(['export'],
-        #                         {'from_date': '2015-12-01', 'to_date': '2016-01-01', })
+        #                         {'event': ['SIGNED_UP_SUCCESS'], 'from_date': '2015-12-01', 'to_date': '2016-01-01',})
 
         result = []
         for item in data.get('series'):
@@ -57,6 +57,23 @@ class MixPanelService(object):
         return result
 
     def active_users(self, start_date, end_date):
-        dates, interval = get_interval_valid_dates(end_date, start_date)
-        result = self.get_event_by_date('Active users ioGrow', 'day', interval, dates)
-        return result
+        units, interval = get_interval_valid_dates(end_date, start_date)
+        data = self.api.request(['events', 'properties'],
+                                {'event': '$custom_event:100587', 'unit': 'day', 'interval': interval, 'name': 'email',
+                                 'type': 'general'}).get('data')
+        result = {}
+        values = data.get('values')
+        for email, actions_data in values.iteritems():
+            for action_date, actions_count in actions_data.iteritems():
+                if actions_count > 1:
+                    result[action_date] = 1 if action_date not in result else result[action_date] + 1
+
+        resp = []
+        keys = result.keys()
+        keys.sort()
+        for key in keys:
+            if units == 0:
+                break
+            resp.append([result[key], key])
+            units -= 1
+        return resp

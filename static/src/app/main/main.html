@@ -16,12 +16,12 @@
                    placeholder="Pick a date range ... "/>
         </div>
         <div class="btn-group col-md-3" role="group" aria-label="...">
-            <button type="button" class="btn btn-default"
-            ng-click="main.changeChartUnit(1, main.bounceRateChartConfig.series[0].data)">Day</button>
-            <button type="button" ng-click="main.changeAllChartsUnit(7)"
+            <button ng-disabled="main.unit==1" type="button" class="btn btn-default"
+            ng-click="main.changeAllChartsUnit(1)">Day</button>
+            <button type="button" ng-click="main.changeAllChartsUnit(7)" ng-disabled="main.unit==7"
                     class="btn btn-default">Week</button>
-            <button type="button" class="btn btn-default"
-            ng-click="main.changeChartUnit(30, main.bounceRateChartConfig.series[0].data)">Month</button>
+            <button type="button" class="btn btn-default" ng-disabled="main.unit==30"
+            ng-click="main.changeAllChartsUnit(30)">Month</button>
         </div>
         <div class="panel col-md-10 col-md-offset-1" style="margin-top: 20px;border: 1px solid black;"
              ng-hide="main.isLoading" id="chart-container">
@@ -38,7 +38,11 @@
                        style="margin-bottom:20px"></highchart>
             <highchart ng-show="main.totalUsersChartConfig" config="main.totalUsersChartConfig"
                        style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.growthRateChartConfig" config="main.growthRateChartConfig"
+                       style="margin-bottom:20px"></highchart>
             <highchart ng-show="main.newUsersBySourceChartConfig" config="main.newUsersBySourceChartConfig"
+                       style="margin-bottom:20px"></highchart>
+            <highchart ng-show="main.activeUsersChartConfig" config="main.activeUsersChartConfig"
                        style="margin-bottom:20px"></highchart>
 
         </div>

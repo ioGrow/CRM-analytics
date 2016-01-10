@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
+
+from google.appengine.api import memcache
 
 from intercom import Intercom, User
 
@@ -12,6 +14,10 @@ class IntercomService(object):
         Intercom.app_api_key = app_api_key
 
     def new_visitors(self, s_date, e_date):
+        key = 'new_visitors_' + s_date.strftime('%Y-%m-%d') + e_date.strftime('%Y-%m-%d')
+        visitors_from_cache = memcache.get(key)
+        if visitors_from_cache:
+            return visitors_from_cache
         total_users = User.count() + 470
         interval = {}
         val = 0
@@ -37,4 +43,17 @@ class IntercomService(object):
             val += interval.get(date_str)
             result.append([total_users - val, date_str])
         result.reverse()
+        memcache.add(key, result, 180)
         return result
+
+    def growth_rate(self, s_date, e_date):
+        new_visitors = self.new_visitors(s_date, e_date)
+        resp = []
+        length = len(new_visitors)
+        for index in range(0, length):
+            if index == length - 1:
+                break
+            rate = (new_visitors[index + 1][0] - new_visitors[index][0])*100 / float(new_visitors[index+1][0])
+            resp.append([round(rate, 2), new_visitors[index+1][1]])
+        return resp
+

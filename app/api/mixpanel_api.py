@@ -28,8 +28,17 @@ class ClicksByUsers(BaseResource):
         start_date = args["startDate"].strftime('%Y-%m-%d')
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
         clicks_by_users = service.sign_in_clicker_and_users_ratio(start_date, end_date)
-        active_users = service.active_users(start_date, end_date)
         return {'data': clicks_by_users}
+
+
+class ActiveUsers(BaseResource):
+    def get(self):
+        args = parser.parse_args()
+        end_date = args["endDate"].strftime('%Y-%m-%d')
+        start_date = args["startDate"].strftime('%Y-%m-%d')
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        active_users = service.active_users(start_date, end_date)
+        return {'data': active_users}
 
 
 class DailyNewUsers(BaseResource):
