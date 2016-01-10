@@ -312,6 +312,45 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
+        vm.getActiveUsers = function (startDate, endDate) {
+            Restangular.one('active_users_growth').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD')
+                }
+            ).then(function (resp) {
+                vm.activeUsersGrowthData = [];
+                for (var i = 0; i < resp.data.length; i += 1) {
+                    var item = resp.data[i];
+                    vm.activeUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
+                }
+                var data = angular.copy(vm.activeUsersGrowthData);
+                vm.activeUsersGrowthChartConfig = angular.copy(vm.chartConfig);
+                vm.activeUsersGrowthChartConfig.series.push({
+                    data: data, name: 'Active Users Growth', dataLabels: {
+                        enabled: true,
+                        color: '#070',
+                        align: 'right',
+                        format: '{point.y:.2f}%', // one decimal
+                        y: 0, // 10 pixels down from the top
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'Verdana, sans-serif'
+                        }
+                    }
+                });
+                vm.activeUsersGrowthChartConfig.options.chart.type = null;
+                vm.activeUsersGrowthChartConfig.options.title.text = "Active Users growth";
+                vm.activeUsersGrowthChartConfig.loading = false;
+                vm.activeUsersGrowthChartConfig.options.tooltip = {
+                    headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                    pointFormat:  '<b>{point.y:.2f}%</b> of total<br/>'
+                }
+
+
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
         /*
          vm.haveAnalytics = function () {
          var result = true;
@@ -382,7 +421,7 @@ export class MainController {
             },
             series: [],
             xAxis: {type: 'datetime'},
-            yAxis: {min: 0},
+            //yAxis: {min: 0},
             legend: {
                 enabled: false
             },

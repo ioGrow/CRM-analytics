@@ -41,6 +41,16 @@ class ActiveUsers(BaseResource):
         return {'data': active_users}
 
 
+class ActiveUsersGrowth(BaseResource):
+    def get(self):
+        args = parser.parse_args()
+        end_date = args["endDate"].strftime('%Y-%m-%d')
+        start_date = args["startDate"].strftime('%Y-%m-%d')
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        active_users = service.active_users_growth(start_date, end_date)
+        return {'data': active_users}
+
+
 class DailyNewUsers(BaseResource):
     def get(self):
         args = parser.parse_args()

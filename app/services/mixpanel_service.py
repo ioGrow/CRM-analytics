@@ -19,10 +19,6 @@ class MixPanelService(object):
         data = self.api.request(['events'],
                                 {'event': ee, 'unit': unit, 'interval': interval,
                                  'type': 'unique'}).get('data')
-        # self.api.ENDPOINT = 'https://data.mixpanel.com/api'
-        # data = self.api.request(['export'],
-        #                         {'event': ['SIGNED_UP_SUCCESS'], 'from_date': '2015-12-01', 'to_date': '2016-01-01',})
-
         result = []
         for item in data.get('series'):
             if units == 0:
@@ -58,17 +54,8 @@ class MixPanelService(object):
 
     def active_users(self, start_date, end_date):
         units, interval = get_interval_valid_dates(end_date, start_date)
-        data = self.api.request(['events', 'properties'],
-                                {'event': '$custom_event:100587', 'unit': 'day', 'interval': interval, 'name': 'email',
-                                 'type': 'general'}).get('data')
-        result = {}
-        values = data.get('values')
-        for email, actions_data in values.iteritems():
-            for action_date, actions_count in actions_data.iteritems():
-                if actions_count > 1:
-                    result[action_date] = 1 if action_date not in result else result[action_date] + 1
-
         resp = []
+        result = self.get_active_users(interval, 1)
         keys = result.keys()
         keys.sort()
         for key in keys:
@@ -77,3 +64,32 @@ class MixPanelService(object):
             resp.append([result[key], key])
             units -= 1
         return resp
+
+    def active_users_growth(self, start_date, end_date):
+        units, interval = get_interval_valid_dates(end_date, start_date)
+        resp = []
+        result = self.get_active_users(interval, 1)
+        keys = result.keys()
+        keys.sort()
+        last_key = None
+        for key in keys:
+            if units == 0:
+                break
+            if last_key:
+                rate = ((result[key] - result[last_key]) * 100) / float(result[key])
+                resp.append([rate, key])
+            units -= 1
+            last_key = key
+        return resp
+
+    def get_active_users(self, interval, actions):
+        result = {}
+        data = self.api.request(['events', 'properties'],
+                                {'event': '$custom_event:100587', 'unit': 'day', 'interval': interval, 'name': 'email',
+                                 'type': 'general'}).get('data')
+
+        for email, actions_data in data.get('values').iteritems():
+            for action_date, actions_count in actions_data.iteritems():
+                if actions_count > actions:
+                    result[action_date] = 1 if action_date not in result else result[action_date] + 1
+        return result
