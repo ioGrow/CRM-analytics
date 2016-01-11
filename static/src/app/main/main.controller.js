@@ -52,15 +52,21 @@ export class MainController {
                     var item = resp.data[i];
                     vm.newVisitorsData.push([moment(item[1]).valueOf(), parseInt(item[0])])
                 }
+
                 var data = angular.copy(vm.newVisitorsData);
                 vm.newVisitorsChartConfig = angular.copy(vm.chartConfig);
                 vm.newVisitorsChartConfig.options.title.text = 'New Visitors';
-                vm.newVisitorsChartConfig.series = [{data: data, name: 'new visitors'}];
+                vm.newVisitorsChartConfig.series = [{
+                    data: data, name: 'new visitors', dataLabels: {
+                        enabled: true
+                    }
+                }];
                 vm.newVisitorsChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
         };
+
         vm.getGrowthRate = function (startDate, endDate) {
             Restangular.one('growth_rate').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
@@ -76,7 +82,12 @@ export class MainController {
                 vm.growthRateChartConfig = angular.copy(vm.chartConfig);
                 vm.growthRateChartConfig.options.chart.type = null;
                 vm.growthRateChartConfig.options.title.text = 'Growth Rate';
-                vm.growthRateChartConfig.series = [{data: data, name: 'Growth Rate'}];
+                vm.growthRateChartConfig.series = [{
+                    data: data, name: 'Growth Rate', dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.2f}%'
+                    }
+                }];
                 vm.growthRateChartConfig.options.tooltip = {valueSuffix: '%'}
                 vm.growthRateChartConfig.loading = false;
             }).catch(function (e) {
@@ -98,7 +109,9 @@ export class MainController {
                 vm.totalUsersChartConfig = angular.copy(vm.chartConfig);
                 vm.totalUsersChartConfig.options.chart.type = null;
                 vm.totalUsersChartConfig.options.title.text = 'Total Users';
-                vm.totalUsersChartConfig.series = [{data: data, name: 'new users'}];
+                vm.totalUsersChartConfig.series = [{
+                    data: data, name: 'new users'
+                }];
                 vm.totalUsersChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
@@ -114,7 +127,7 @@ export class MainController {
                 vm.bounceRateData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    vm.bounceRateData.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                    vm.bounceRateData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
                 }
                 var data = angular.copy(vm.bounceRateData);
                 vm.bounceRateChartConfig = angular.copy(vm.chartConfig);
@@ -126,15 +139,7 @@ export class MainController {
                 vm.bounceRateChartConfig.series.push({
                     data: data, name: 'Bounce Rate', dataLabels: {
                         enabled: true,
-                        rotation: -90,
-                        color: '#FFFFFF',
-                        align: 'right',
-                        format: '{point.y:.1f}', // one decimal
-                        y: 10, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
+                        format: '{point.y:.2f}%'
                     }
                 });
                 vm.bounceRateChartConfig.loading = false;
@@ -157,19 +162,10 @@ export class MainController {
                 vm.conversionRateChartConfig.options.chart.type = 'column';
                 vm.conversionRateChartConfig.options.title.text = 'Conversion Rate';
                 vm.conversionRateChartConfig.options.subtitle.text = 'Convesion rate (New users/ visitors)';
-                vm.conversionRateChartConfig.options.tooltip = {valueSuffix: '%'}
                 vm.conversionRateChartConfig.series.push({
                     data: vm.conversionRateData, name: 'Conversion Rate', dataLabels: {
                         enabled: true,
-                        rotation: -90,
-                        color: '#FFFFFF',
-                        align: 'right',
-                        format: '{point.y:.1f}', // one decimal
-                        y: 10, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
+                        format: '{point.y:.1f}%'
                     }
                 });
                 vm.conversionRateChartConfig.loading = false;
@@ -197,15 +193,7 @@ export class MainController {
                 vm.userBySigninClickChartConfig.series.push({
                     data: data, name: 'Users/sign_in clickers', dataLabels: {
                         enabled: true,
-                        rotation: -90,
-                        color: '#FFFFFF',
-                        align: 'right',
-                        format: '{point.y:.1f}', // one decimal
-                        y: 10, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
+                        format: '{point.y:.2f}'
                     }
                 });
                 vm.userBySigninClickChartConfig.loading = false;
@@ -232,16 +220,7 @@ export class MainController {
                 vm.weeklyNewUsersChartConfig.options.title.text = 'Daily new Users';
                 vm.weeklyNewUsersChartConfig.series.push({
                     data: data, name: 'Weekly new Users', dataLabels: {
-                        enabled: true,
-                        rotation: -90,
-                        color: '#FFFFFF',
-                        align: 'right',
-                        format: '{point.y:.1f}', // one decimal
-                        y: 10, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
+                        enabled: true
                     }
                 });
                 vm.weeklyNewUsersChartConfig.loading = false;
@@ -294,14 +273,6 @@ export class MainController {
                 vm.activeUsersChartConfig.series.push({
                     data: data, name: 'Active Users', dataLabels: {
                         enabled: true,
-                        color: '#000',
-                        align: 'right',
-                        format: '{point.y}', // one decimal
-                        y: 0, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
                     }
                 });
                 vm.activeUsersChartConfig.options.chart.type = null;
@@ -328,14 +299,7 @@ export class MainController {
                 vm.activeUsersGrowthChartConfig.series.push({
                     data: data, name: 'Active Users Growth', dataLabels: {
                         enabled: true,
-                        color: '#070',
-                        align: 'right',
                         format: '{point.y:.2f}%', // one decimal
-                        y: 0, // 10 pixels down from the top
-                        style: {
-                            fontSize: '13px',
-                            fontFamily: 'Verdana, sans-serif'
-                        }
                     }
                 });
                 vm.activeUsersGrowthChartConfig.options.chart.type = null;
@@ -343,7 +307,7 @@ export class MainController {
                 vm.activeUsersGrowthChartConfig.loading = false;
                 vm.activeUsersGrowthChartConfig.options.tooltip = {
                     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                    pointFormat:  '<b>{point.y:.2f}%</b> of total<br/>'
+                    pointFormat: '<b>{point.y:.2f}%</b> of total<br/>'
                 }
 
 
