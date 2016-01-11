@@ -1,5 +1,5 @@
 export class MainController {
-    constructor($timeout, $auth, $state, webDevTec, toastr, Restangular, moment) {
+    constructor($timeout, $auth, $state, webDevTec, toastr, Restangular, moment, Pace) {
         'ngInject';
         var vm = this;
         vm.awesomeThings = [];
@@ -272,7 +272,7 @@ export class MainController {
                 vm.activeUsersChartConfig = angular.copy(vm.chartConfig);
                 vm.activeUsersChartConfig.series.push({
                     data: data, name: 'Active Users', dataLabels: {
-                        enabled: true,
+                        enabled: true
                     }
                 });
                 vm.activeUsersChartConfig.options.chart.type = null;
@@ -299,7 +299,7 @@ export class MainController {
                 vm.activeUsersGrowthChartConfig.series.push({
                     data: data, name: 'Active Users Growth', dataLabels: {
                         enabled: true,
-                        format: '{point.y:.2f}%', // one decimal
+                        format: '{point.y:.2f}%'
                     }
                 });
                 vm.activeUsersGrowthChartConfig.options.chart.type = null;
@@ -421,10 +421,7 @@ export class MainController {
                         depth: 35,
                         dataLabels: {
                             enabled: true,
-                            format: '<b>{point.name} </b> : {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            },
+                            format: '<b>{point.name} </b> : {point.percentage:.2f} %',
                             useHTML: true
                         }
                     }

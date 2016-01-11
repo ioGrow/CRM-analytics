@@ -57,6 +57,14 @@
             "main": [
                 "bootstrap-social.scss"
             ]
+        },
+        "highcharts": {
+            "main": [
+                "highcharts.js",
+                "highcharts-more.js",
+                "modules/exporting.js",
+                "themes/grid-light.js"
+            ]
         }
     },
     "resolutions": {

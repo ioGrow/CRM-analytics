@@ -40,11 +40,4 @@ export function config($logProvider, $authProvider) {
         approvalPrompt: 'force',
         accessType: 'offline'
     });
-    $authProvider.oauth2({
-        name: 'intercom',
-        url: '/auth/intercom',
-        clientId: 's9iirr8w',
-        redirectUri: window.location.origin,
-        authorizationEndpoint: 'https://api.intercom.io/'
-    });
 }

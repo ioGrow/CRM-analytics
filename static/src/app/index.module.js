@@ -1,4 +1,4 @@
-/* global malarkey:false, moment:false */
+/* global malarkey:false, moment:false, Pace:false */
 
 import { config } from './index.config';
 import { routerConfig } from './index.route';
@@ -15,6 +15,7 @@ angular.module('CRMAnalytics', ['restangular', 'ui.router', 'toastr', 'highchart
     'CRMAnalytics.onBoarding', 'CRMAnalytics.login'])
     .constant('malarkey', malarkey)
     .constant('moment', moment)
+    .constant('Pace', Pace)
     .config(config)
     .config(routerConfig)
     .run(runBlock)
@@ -23,4 +24,3 @@ angular.module('CRMAnalytics', ['restangular', 'ui.router', 'toastr', 'highchart
     .controller('MainController', MainController)
     .directive('acmeNavbar', NavbarDirective)
     .directive('acmeMalarkey', MalarkeyDirective);
-
