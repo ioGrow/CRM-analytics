@@ -287,7 +287,7 @@ export class MainController {
                 vm.activeUsersData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.activeUsersData.push([moment(item[1]).valueOf(), parseInt(item[0])]);
+                    vm.activeUsersData.push([moment(item[1]).valueOf(), item[0]]);
                 }
                 var data = angular.copy(vm.activeUsersData);
                 vm.activeUsersChartConfig = angular.copy(vm.chartConfig);
@@ -312,7 +312,7 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.getActiveUsers = function (startDate, endDate) {
+        vm.getActiveUsersGrowth = function (startDate, endDate) {
             Restangular.one('active_users_growth').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD')
@@ -372,6 +372,7 @@ export class MainController {
             vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate);
         }
 
         if (vm.isAuthenticated()) {
