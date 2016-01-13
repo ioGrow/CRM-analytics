@@ -69,6 +69,12 @@ class ChurnedUsers(BaseResource):
         return {'data': (service.get_churn_users())}
 
 
+class LifeTimeChurnedUsers(BaseResource):
+    def get(self):
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        return {'data': (service.get_life_time_churned_users())}
+
+
 class DailyNewUsers(BaseResource):
     def get(self):
         args = parser.parse_args()

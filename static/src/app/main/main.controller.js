@@ -233,6 +233,30 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
+
+        vm.getLifeTimeChurnedUsers = function (startDate, endDate) {
+            Restangular.one('life_time_churned_users').get().then(function (resp) {
+                vm.LifeTimeChurnedUsersData = [];
+                for (var i = 0; i < resp.data.length; i++) {
+                    var item = resp.data[i];
+                    vm.LifeTimeChurnedUsersData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
+                }
+                var data = angular.copy(vm.LifeTimeChurnedUsersData);
+                vm.lifeTimeChurnedUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.lifeTimeChurnedUsersChartConfig.options.chart.type = 'column';
+                vm.lifeTimeChurnedUsersChartConfig.options.title.text = '(Months) Life Time  of churned Active users';
+                vm.lifeTimeChurnedUsersChartConfig.options.subtitle.text = 'Life Time  of churned Active users';
+                vm.lifeTimeChurnedUsersChartConfig.series.push({
+                    data: data, name: '(Months) Life Time  of churned Active users', dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.2f}'
+                    }
+                });
+                vm.lifeTimeChurnedUsersChartConfig.loading = false;
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
         vm.newUsersBySource = function (startDate, endDate) {
             Restangular.one('new_users_by_source').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
@@ -445,6 +469,7 @@ export class MainController {
             vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.churnedUsers();
+            vm.getLifeTimeChurnedUsers();
             //vm.dailyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
             //vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getDailyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.dailyActions);

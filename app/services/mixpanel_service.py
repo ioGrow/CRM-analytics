@@ -102,12 +102,11 @@ class MixPanelService(object):
             user_email = user['$properties']['$email']
             if user_email in active_users:
                 result.update(Counter(get_by_week(active_users[user_email], weekly_actions)) + Counter(result))
-        self.get_churn_users()
         return dic_to_sorted_array(result)
 
-    def get_churn_users(self):
-        last_two_moths = (datetime.today() - timedelta(days=60)).strftime('%Y-%m-%d')
-        last_month = (datetime.today() - timedelta(days=30)).strftime('%Y-%m-%d')
+    def get_churn_users(self, months=1):
+        last_two_moths = (datetime.today() - timedelta(days=30+30*months)).strftime('%Y-%m-%d')
+        last_month = (datetime.today() - timedelta(days=30*months)).strftime('%Y-%m-%d')
         created_users_exp = 'not "iogrow.com" in properties["$email"] and properties["$created"] >= datetime("' \
                             + last_two_moths + '") and properties["$created"] <=  datetime("' \
                             + last_month + '")'
@@ -118,6 +117,7 @@ class MixPanelService(object):
         created_users = self.api.request(['engage'], {'selector': created_users_exp})['total']
         churned_users_count = created_users - still_active_count
         result = [['churned users', churned_users_count], ['still active', still_active_count]]
+
         return result
 
     def new_users_req(self, start_date, end_date):
@@ -154,4 +154,15 @@ class MixPanelService(object):
                 break
             result.append([data.get('values').get(event).get(item), item])
             units -= 1
+        return result
+
+    def get_life_time_churned_users(self):
+        result = []
+        for i in range(0, 3):
+            churn = self.get_churn_users(3-i)
+            date = (datetime.today() - timedelta(days=30*(2-i))).strftime('%Y-%m-%d')
+            churn_users = churn[0][1]
+            still_active = churn[1][1]
+            life_time_churn = 0 if not churn_users else (churn_users + still_active) / float(churn_users)
+            result.append([round(life_time_churn, 2), date])
         return result
