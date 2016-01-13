@@ -63,6 +63,12 @@ class EngagedUsers(BaseResource):
         return {'data': engaged_users}
 
 
+class ChurnedUsers(BaseResource):
+    def get(self):
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        return {'data': (service.get_churn_users())}
+
+
 class DailyNewUsers(BaseResource):
     def get(self):
         args = parser.parse_args()

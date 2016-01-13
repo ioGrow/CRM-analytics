@@ -1,4 +1,5 @@
 from collections import Counter
+from datetime import datetime, timedelta
 
 from app.utils import get_interval_valid_dates, dic_to_sorted_array, to_growth_rate_list
 from app.utils.mixpanel import Mixpanel
@@ -92,6 +93,7 @@ class MixPanelService(object):
         return self.segment_request(start_date, end_date, '$custom_event:100587', 'email')
 
     def get_weekly_engaged_users(self, start_date, end_date, weekly_actions):
+        # self.get_churn_users()
         result = {}
         created_users = self.new_users_req(start_date, end_date).get("results")
         active_users = self.active_users_req(start_date, end_date).get('values')
@@ -100,7 +102,23 @@ class MixPanelService(object):
             user_email = user['$properties']['$email']
             if user_email in active_users:
                 result.update(Counter(get_by_week(active_users[user_email], weekly_actions)) + Counter(result))
+        self.get_churn_users()
         return dic_to_sorted_array(result)
+
+    def get_churn_users(self):
+        last_two_moths = (datetime.today() - timedelta(days=60)).strftime('%Y-%m-%d')
+        last_month = (datetime.today() - timedelta(days=30)).strftime('%Y-%m-%d')
+        created_users_exp = 'not "iogrow.com" in properties["$email"] and properties["$created"] >= datetime("' \
+                            + last_two_moths + '") and properties["$created"] <=  datetime("' \
+                            + last_month + '")'
+        still_active_exp = created_users_exp + ' and properties["$last_seen"] >= datetime("' + last_month + '")'
+
+        still_active_count = self.api.request(['engage'], {'selector': still_active_exp})['total']
+
+        created_users = self.api.request(['engage'], {'selector': created_users_exp})['total']
+        churned_users_count = created_users - still_active_count
+        result = [['churned users', churned_users_count], ['still active', still_active_count]]
+        return result
 
     def new_users_req(self, start_date, end_date):
         s_date = start_date.strftime('%Y-%m-%d')

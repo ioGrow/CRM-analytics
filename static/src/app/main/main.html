@@ -15,7 +15,7 @@
                    ng-model="main.dateRange" options="main.dataPickerOptions"
                    placeholder="Pick a date range ... "/>
         </div>
-        <div class="btn-group col-md-3" role="group" aria-label="...">
+        <!--<div class="btn-group col-md-3" role="group" aria-label="...">
             <button ng-disabled="main.unit==1" type="button" class="btn btn-default"
                     ng-click="main.changeAllChartsUnit(1)">Day
             </button>
@@ -25,7 +25,7 @@
             <button type="button" class="btn btn-default" ng-disabled="main.unit==30"
                     ng-click="main.changeAllChartsUnit(30)">Month
             </button>
-        </div>
+        </div>-->
         <div class="panel col-md-10 col-md-offset-1" style="margin-top: 20px;border: 1px solid black;padding: 0px;"
              ng-hide="main.isLoading" id="chart-container">
 
@@ -71,6 +71,7 @@
             <highchart ng-show="main.dailyNewUsersChartConfig" config="main.dailyNewUsersChartConfig"></highchart>
             <highchart ng-show="main.growthRateChartConfig" config="main.growthRateChartConfig"></highchart>
             <highchart ng-show="main.newUsersBySourceChartConfig" config="main.newUsersBySourceChartConfig"></highchart>
+            <highchart ng-show="main.churnedUsersChartConfig" config="main.churnedUsersChartConfig"></highchart>
 
 
         </div>
