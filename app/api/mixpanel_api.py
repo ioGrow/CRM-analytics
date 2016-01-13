@@ -11,6 +11,8 @@ parser.add_argument('startDate', type=inputs.date, help='Rate cannot be converte
 parser.add_argument('endDate', type=inputs.date, help='Rate cannot be converted')
 parser.add_argument('dailyActions', type=int, help='you have to send daily actions')
 parser.add_argument('weeklyActions', type=int, help='you have to send actions')
+parser.add_argument('periodActions', type=int, help='you have to send actions')
+parser.add_argument('periodDays', type=int, help='you have to send actions')
 
 
 class ClicksByUsers(BaseResource):
@@ -21,46 +23,52 @@ class ClicksByUsers(BaseResource):
         return {'data': clicks_by_users}
 
 
-class DailyActiveUsers(BaseResource):
+class PeriodicallyActiveUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.get_daily_active_users(args["startDate"], args["endDate"], args["dailyActions"])
+        active_users = service.get_periodically_active_users(args["startDate"], args["endDate"],
+                                                             args["periodActions"], args["periodDays"])
         return {'data': active_users}
 
 
-class DailyActiveUsersGrowth(BaseResource):
+class PeriodicallyActiveUsersGrowth(BaseResource):
     def get(self):
         args = parser.parse_args()
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.get_daily_active_users_growth(args["startDate"], args["endDate"], args["dailyActions"])
+        active_users = service.get_active_users_growth_by_period(args["startDate"], args["endDate"],
+                                                                 args["periodActions"], args["periodDays"])
         return {'data': active_users}
 
 
-class WeeklyActiveUsers(BaseResource):
+class PeriodicallyEngagedUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.get_weekly_active_users(args["startDate"], args["endDate"], args["weeklyActions"])
-        return {'data': active_users}
-
-
-class WeeklyActiveUsersGrowth(BaseResource):
-    def get(self):
-        args = parser.parse_args()
-        actions = args["weeklyActions"]
-        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.get_weekly_active_users_growth(args["startDate"], args["endDate"], actions)
-        return {'data': active_users}
-
-
-class EngagedUsers(BaseResource):
-    def get(self):
-        args = parser.parse_args()
-        weekly_actions = args["weeklyActions"]
-        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        engaged_users = service.get_weekly_engaged_users(args["startDate"], args["endDate"], weekly_actions)
+        engaged_users = service.get_engaged_users_by_period(args["startDate"], args["endDate"], args["periodActions"],
+                                                            args["periodDays"])
         return {'data': engaged_users}
+
+
+# class WeeklyActiveUsers(BaseResource):
+#     def get(self):
+#         args = parser.parse_args()
+#         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+#         active_users = service.get_periodically_active_users(args["startDate"], args["endDate"],
+#                                                              args["weeklyActions"], 7)
+#         return {'data': active_users}
+#
+#
+# class WeeklyActiveUsersGrowth(BaseResource):
+#     def get(self):
+#         args = parser.parse_args()
+#         week_actions = args["weeklyActions"]
+#         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+#         active_users = service.get_active_users_growth_by_period(args["startDate"], args["endDate"], week_actions, 7)
+#         return {'data': active_users}
+
+
+
 
 
 class ChurnedUsers(BaseResource):

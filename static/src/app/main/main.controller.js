@@ -7,8 +7,8 @@ export class MainController {
         vm.toastr = toastr;
         vm.unit = 1;
         vm.isLoading = true;
-        vm.dailyActions = 2;
-        vm.weeklyActions = 5;
+        vm.periodActions = 5;
+        vm.periodDays = 7;
         vm.isAuthenticated = function () {
             return $auth.isAuthenticated()
         };
@@ -234,7 +234,7 @@ export class MainController {
             });
         };
 
-        vm.getLifeTimeChurnedUsers = function (startDate, endDate) {
+        vm.getLifeTimeChurnedUsers = function () {
             Restangular.one('life_time_churned_users').get().then(function (resp) {
                 vm.LifeTimeChurnedUsersData = [];
                 for (var i = 0; i < resp.data.length; i++) {
@@ -286,7 +286,7 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.churnedUsers = function (startDate, endDate) {
+        vm.churnedUsers = function () {
             Restangular.one('churned_users').get().then(function (resp) {
                 vm.churnedUsersData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
@@ -314,57 +314,59 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.getDailyActiveUsers = function (startDate, endDate, actions) {
-            Restangular.one('daily_active_users').get({
+        vm.getPeriodicallyActiveUsers = function (startDate, endDate, periodActions, periodDays) {
+            Restangular.one('periodically_active_users').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD'),
-                    "dailyActions": actions
+                    "periodActions": periodActions,
+                    "periodDays": periodDays
                 }
             ).then(function (resp) {
-                vm.dailyActiveUsersData = [];
+                vm.periodicallyActiveUsersData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.dailyActiveUsersData.push([moment(item[1]).valueOf(), item[0]]);
+                    vm.periodicallyActiveUsersData.push([moment(item[1]).valueOf(), item[0]]);
                 }
-                var data = angular.copy(vm.dailyActiveUsersData);
-                vm.dailyActiveUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.dailyActiveUsersChartConfig.series.push({
-                    data: data, name: 'Daily Active Users', dataLabels: {
+                var data = angular.copy(vm.periodicallyActiveUsersData);
+                vm.periodicallyActiveUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.periodicallyActiveUsersChartConfig.series.push({
+                    data: data, name: 'Periodically Active Users', dataLabels: {
                         enabled: true
                     }
                 });
-                vm.dailyActiveUsersChartConfig.options.chart.type = null;
-                vm.dailyActiveUsersChartConfig.options.title.text = "Daily Active Users";
-                vm.dailyActiveUsersChartConfig.loading = false;
-
+                vm.periodicallyActiveUsersChartConfig.options.chart.type = null;
+                vm.periodicallyActiveUsersChartConfig.options.title.text = "Periodically Active Users";
+                vm.periodicallyActiveUsersChartConfig.loading = false;
+                vm.getPeriodicallyEngagedUsers(startDate, endDate, periodActions, periodDays);
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
         };
-        vm.getDailyActiveUsersGrowth = function (startDate, endDate, actions) {
-            Restangular.one('daily_active_users_growth').get({
+        vm.getPeriodicallyActiveUsersGrowth = function (startDate, endDate, periodActions, periodDays) {
+            Restangular.one('periodically_active_users_growth').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD'),
-                    'dailyActions': actions
+                    "periodActions": periodActions,
+                    "periodDays": periodDays
                 }
             ).then(function (resp) {
-                vm.dailyActiveUsersGrowthData = [];
+                vm.periodicallyActiveUsersGrowthData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.dailyActiveUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
+                    vm.periodicallyActiveUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
                 }
-                var data = angular.copy(vm.dailyActiveUsersGrowthData);
-                vm.dailyActiveUsersGrowthChartConfig = angular.copy(vm.chartConfig);
-                vm.dailyActiveUsersGrowthChartConfig.series.push({
+                var data = angular.copy(vm.periodicallyActiveUsersGrowthData);
+                vm.periodicallyActiveUsersGrowthChartConfig = angular.copy(vm.chartConfig);
+                vm.periodicallyActiveUsersGrowthChartConfig.series.push({
                     data: data, name: 'Active Users Growth', dataLabels: {
                         enabled: true,
                         format: '{point.y:.2f}%'
                     }
                 });
-                vm.dailyActiveUsersGrowthChartConfig.options.chart.type = null;
-                vm.dailyActiveUsersGrowthChartConfig.options.title.text = "Daily Active Users growth";
-                vm.dailyActiveUsersGrowthChartConfig.loading = false;
-                vm.dailyActiveUsersGrowthChartConfig.options.tooltip = {
+                vm.periodicallyActiveUsersGrowthChartConfig.options.chart.type = null;
+                vm.periodicallyActiveUsersGrowthChartConfig.options.title.text = "Periodically Active Users growth";
+                vm.periodicallyActiveUsersGrowthChartConfig.loading = false;
+                vm.periodicallyActiveUsersGrowthChartConfig.options.tooltip = {
                     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
                     pointFormat: '<b>{point.y:.2f}%</b> of total<br/>'
                 }
@@ -374,55 +376,25 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.getWeeklyActiveUsers = function (startDate, endDate, actions) {
-            Restangular.one('weekly_active_users').get({
+        vm.getPeriodicallyEngagedUsers = function (startDate, endDate, periodActions, periodDays) {
+            Restangular.one('periodically_engaged_users').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
                     "endDate": endDate.format('YYYY-MM-DD'),
-                    "weeklyActions": actions
+                    "periodActions": periodActions,
+                    "periodDays": periodDays
                 }
             ).then(function (resp) {
-                vm.weeklyActiveUsersData = [];
+                vm.periodicallyEngagedUsersData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.weeklyActiveUsersData.push([moment(item[1]).valueOf(), item[0]]);
+                    vm.periodicallyEngagedUsersData.push([moment(item[1]).valueOf(), item[0]]);
                 }
-                var data = angular.copy(vm.weeklyActiveUsersData);
-                vm.weeklyActiveUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.weeklyActiveUsersChartConfig.series.push({
-                    data: data, name: 'Weekly Active Users', dataLabels: {
+                var data = angular.copy(vm.periodicallyEngagedUsersData);
+                vm.periodicallyActiveUsersChartConfig.series.push({
+                    data: data, name: 'Periodically Engaged Users', dataLabels: {
                         enabled: true
                     }
                 });
-                vm.weeklyActiveUsersChartConfig.options.chart.type = null;
-                vm.weeklyActiveUsersChartConfig.options.title.text = "Weekly Active and engaged Users";
-                vm.weeklyActiveUsersChartConfig.loading = false;
-
-            }).catch(function (e) {
-                toastr.error(e.data.message);
-            });
-        }
-        vm.getWeeklyEngagedUsers = function (startDate, endDate, actions) {
-            Restangular.one('weekly_engaged_users').get({
-                    "startDate": startDate.format('YYYY-MM-DD'),
-                    "endDate": endDate.format('YYYY-MM-DD'),
-                    "weeklyActions": actions
-                }
-            ).then(function (resp) {
-                vm.weeklyEngagedUsersData = [];
-                for (var i = 0; i < resp.data.length; i += 1) {
-                    var item = resp.data[i];
-                    vm.weeklyEngagedUsersData.push([moment(item[1]).valueOf(), item[0]]);
-                }
-                var data = angular.copy(vm.weeklyEngagedUsersData);
-                //vm.weeklyEngagedUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.weeklyActiveUsersChartConfig.series.push({
-                    data: data, name: 'Weekly Engaged Users', dataLabels: {
-                        enabled: true
-                    }
-                });
-                //vm.weeklyEngagedUsersChartConfig.options.chart.type = null;
-                //vm.weeklyEngagedUsersChartConfig.options.title.text = "Weekly Engaged Users";
-                //vm.weeklyEngagedUsersChartConfig.loading = false;
 
             }).catch(function (e) {
                 toastr.error(e.data.message);
@@ -470,26 +442,18 @@ export class MainController {
             vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.churnedUsers();
             vm.getLifeTimeChurnedUsers();
-            //vm.dailyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-            //vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
-            vm.getDailyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.dailyActions);
-            vm.getDailyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, vm.dailyActions);
-            vm.getWeeklyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
-            vm.getWeeklyEngagedUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
-            vm.getWeeklyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
+
+            vm.getPeriodicallyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.periodActions, vm.periodDays);
+            vm.getPeriodicallyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, vm.periodActions, vm.periodDays);
+
         }
 
         if (vm.isAuthenticated()) {
             runAll()
         }
-        vm.refreshDailyActiveUsers = function (actions) {
-            vm.getDailyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
-            vm.getDailyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, actions);
-        }
-        vm.refreshWeeklyActiveUsers = function (actions) {
-            vm.getWeeklyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
-            vm.getWeeklyEngagedUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
-            vm.getWeeklyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, actions);
+        vm.refreshPeriodicallyActiveUsers = function (periodActions, periodDays) {
+            vm.getPeriodicallyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, periodActions, periodDays);
+            vm.getPeriodicallyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, periodActions, periodDays);
         }
 
         vm.dataPickerOptions = {
