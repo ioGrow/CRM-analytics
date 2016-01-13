@@ -1,5 +1,6 @@
 import httplib2
 from apiclient.discovery import build
+from datetime import timedelta
 
 from app.utils.str_opts import join_list
 from flask.ext.restful import abort
@@ -47,19 +48,18 @@ class GoogleAnalyticsService(object):
                                        profiles=profiles))
         return properties
 
-    def get_data(self, profile_id, metrics_list, filters_list, dimensions_list, sorts_list,
-                 start_date='30daysAgo',
-                 end_date='today'):
+    def get_data(self, profile_id, metrics_list, filters_list, dimensions_list, sorts_list, start_date, end_date):
         # Use the Analytics Service Object to query the Core Reporting API
         metrics = join_list(metrics_list) if len(metrics_list) else abort(500, message="you should provide metrics")
         filters = join_list(filters_list) if len(filters_list) else None
         dimensions = join_list(dimensions_list) if len(dimensions_list) else None
         sorts = join_list(sorts_list) if len(sorts_list) else None
-
+        s_date = start_date.strftime('%Y-%m-%d')
+        e_date = (end_date - timedelta(days=1)).strftime('%Y-%m-%d')
         return self.service.data().ga().get(
             ids='ga:' + profile_id,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=s_date,
+            end_date=e_date,
             start_index=1,
             max_results=10000,
             dimensions=dimensions,

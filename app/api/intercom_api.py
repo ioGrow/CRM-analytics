@@ -12,18 +12,14 @@ parser.add_argument('endDate', type=inputs.date, help='Rate cannot be converted'
 class TotalUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"]
-        start_date = args["startDate"]
         service = IntercomService(config.get("intercom_app_id"), config.get("intercom_app_api_key"))
-        resp = service.new_visitors(start_date, end_date)
+        resp = service.total_users(args["startDate"], args["endDate"])
         return {'data': resp}
 
 
 class GrowthRate(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"]
-        start_date = args["startDate"]
         service = IntercomService(config.get("intercom_app_id"), config.get("intercom_app_api_key"))
-        growth_rate = service.growth_rate(start_date, end_date)
+        growth_rate = service.growth_rate(args["startDate"], args["endDate"])
         return {'data': growth_rate}

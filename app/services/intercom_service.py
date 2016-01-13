@@ -13,8 +13,8 @@ class IntercomService(object):
         Intercom.app_id = app_id
         Intercom.app_api_key = app_api_key
 
-    def new_visitors(self, s_date, e_date):
-        key = 'new_visitors_' + s_date.strftime('%Y-%m-%d') + e_date.strftime('%Y-%m-%d')
+    def total_users(self, s_date, e_date):
+        key = 'total_users_' + s_date.strftime('%Y-%m-%d') + e_date.strftime('%Y-%m-%d')
         visitors_from_cache = memcache.get(key)
         if visitors_from_cache:
             return visitors_from_cache
@@ -47,13 +47,12 @@ class IntercomService(object):
         return result
 
     def growth_rate(self, s_date, e_date):
-        new_visitors = self.new_visitors(s_date, e_date)
+        new_visitors = self.total_users(s_date, e_date)
         resp = []
         length = len(new_visitors)
         for index in range(0, length):
             if index == length - 1:
                 break
-            rate = (new_visitors[index + 1][0] - new_visitors[index][0])*100 / float(new_visitors[index+1][0])
-            resp.append([round(rate, 2), new_visitors[index+1][1]])
+            rate = (new_visitors[index + 1][0] - new_visitors[index][0]) * 100 / float(new_visitors[index + 1][0])
+            resp.append([round(rate, 2), new_visitors[index + 1][1]])
         return resp
-

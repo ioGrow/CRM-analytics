@@ -51,7 +51,6 @@ class Mixpanel(object):
         params['sig'] = self.hash_args(params)
 
         request_url = '/'.join([self.ENDPOINT, str(self.VERSION)] + methods) + '/?' + self.unicode_urlencode(params)
-
         request = urllib2.urlopen(request_url, timeout=120)
         data = request.read()
 

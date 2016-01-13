@@ -1,5 +1,5 @@
 export class MainController {
-    constructor($timeout, $auth, $state, webDevTec, toastr, Restangular, moment, Pace) {
+    constructor($timeout, $auth, $state, webDevTec, toastr, Restangular, moment, Pace, Highcharts) {
         'ngInject';
         var vm = this;
         vm.awesomeThings = [];
@@ -7,18 +7,18 @@ export class MainController {
         vm.toastr = toastr;
         vm.unit = 1;
         vm.isLoading = true;
-
+        vm.dailyActions = 2;
+        vm.weeklyActions = 5;
         vm.isAuthenticated = function () {
             return $auth.isAuthenticated()
         };
-
         function stopLoading() {
             vm.isLoading = false;
         }
 
         Pace.on('hide', stopLoading());
         vm.dateRange = {
-            startDate: moment().subtract(29, 'days'),
+            startDate: moment().subtract(21, 'days'),
             endDate: moment().add(1, 'days')
         };
         vm.changeAllChartsUnit = function (unit) {
@@ -40,7 +40,6 @@ export class MainController {
             }
             return result;
         }
-
         vm.getNewVisitors = function (startDate, endDate) {
             Restangular.one('new_visitors').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
@@ -62,6 +61,28 @@ export class MainController {
                     }
                 }];
                 vm.newVisitorsChartConfig.loading = false;
+                vm.dailyNewUsers(startDate, endDate);
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
+        vm.dailyNewUsers = function (startDate, endDate) {
+            Restangular.one('daily_new_users').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD')
+                }
+            ).then(function (resp) {
+                vm.dailyNewUsersData = [];
+                for (var i = 0; i < resp.data.length; i++) {
+                    var item = resp.data[i];
+                    vm.dailyNewUsersData.push([moment(item[1]).valueOf(), parseInt(item[0])])
+                }
+                var data = angular.copy(vm.dailyNewUsersData);
+                vm.newVisitorsChartConfig.series.push({
+                    data: data, name: 'New Users', dataLabels: {
+                        enabled: true
+                    }
+                });
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -88,7 +109,10 @@ export class MainController {
                         format: '{point.y:.2f}%'
                     }
                 }];
-                vm.growthRateChartConfig.options.tooltip = {valueSuffix: '%'}
+                vm.growthRateChartConfig.options.tooltip = {
+                    valueSuffix: '%', crosshairs: true,
+                    shared: true
+                }
                 vm.growthRateChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
@@ -108,6 +132,10 @@ export class MainController {
                 var data = angular.copy(vm.totalUsersData);
                 vm.totalUsersChartConfig = angular.copy(vm.chartConfig);
                 vm.totalUsersChartConfig.options.chart.type = null;
+                vm.totalUsersChartConfig.options.tooltip = {
+                    valueSuffix: '%', crosshairs: true,
+                    shared: true
+                };
                 vm.totalUsersChartConfig.options.title.text = 'Total Users';
                 vm.totalUsersChartConfig.series = [{
                     data: data, name: 'new users'
@@ -117,7 +145,6 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-
         vm.getBouncesRates = function (startDate, endDate) {
             Restangular.one('bounce_rate').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
@@ -127,13 +154,22 @@ export class MainController {
                 vm.bounceRateData = [];
                 for (var i = 0; i < resp.data.length; i++) {
                     var item = resp.data[i];
-                    vm.bounceRateData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
+                    vm.bounceRateData.push([moment(item[1]).valueOf(), parseFloat(parseFloat(item[0]).toFixed(2))])
                 }
                 var data = angular.copy(vm.bounceRateData);
                 vm.bounceRateChartConfig = angular.copy(vm.chartConfig);
                 vm.bounceRateChartConfig.options.chart.type = 'column';
                 vm.bounceRateChartConfig.options.title.text = 'Bounce Rate';
-                vm.bounceRateChartConfig.options.tooltip = {valueSuffix: '%'}
+                vm.bounceRateChartConfig.options.tooltip = {
+                    valueSuffix: '%', crosshairs: true,
+                    shared: true
+                }
+                vm.bounceRateChartConfig.options.yAxis = {stackLabels: {enabled: true}}
+                vm.bounceRateChartConfig.options.plotOptions = {
+                    column: {
+                        stacking: 'normal'
+                    }
+                }
                 vm.bounceRateChartConfig.options.subtitle.text = 'Visits in which the person left your site from' +
                     ' the entrance page without interacting with the page';
                 vm.bounceRateChartConfig.series.push({
@@ -143,6 +179,7 @@ export class MainController {
                     }
                 });
                 vm.bounceRateChartConfig.loading = false;
+                vm.getConversionRates(startDate, endDate);
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -158,17 +195,12 @@ export class MainController {
                     var item = resp.data[i];
                     vm.conversionRateData.push([moment(item[1]).valueOf(), parseFloat(item[0])])
                 }
-                vm.conversionRateChartConfig = angular.copy(vm.chartConfig);
-                vm.conversionRateChartConfig.options.chart.type = 'column';
-                vm.conversionRateChartConfig.options.title.text = 'Conversion Rate';
-                vm.conversionRateChartConfig.options.subtitle.text = 'Convesion rate (New users/ visitors)';
-                vm.conversionRateChartConfig.series.push({
+                vm.bounceRateChartConfig.series.push({
                     data: vm.conversionRateData, name: 'Conversion Rate', dataLabels: {
                         enabled: true,
                         format: '{point.y:.1f}%'
                     }
                 });
-                vm.conversionRateChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -197,33 +229,6 @@ export class MainController {
                     }
                 });
                 vm.userBySigninClickChartConfig.loading = false;
-            }).catch(function (e) {
-                toastr.error(e.data.message);
-            });
-        };
-
-        vm.weeklyNewUsers = function (startDate, endDate) {
-            Restangular.one('daily_new_users').get({
-                    "startDate": startDate.format('YYYY-MM-DD'),
-                    "endDate": endDate.format('YYYY-MM-DD')
-                }
-            ).then(function (resp) {
-                vm.dailyNewUsersData = [];
-                for (var i = 0; i < resp.data.length; i++) {
-                    var item = resp.data[i];
-                    vm.dailyNewUsersData.push([item[1], parseInt(item[0])])
-                }
-                var data = angular.copy(vm.dailyNewUsersData);
-                vm.weeklyNewUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.weeklyNewUsersChartConfig.xAxis.type = 'category';
-                vm.weeklyNewUsersChartConfig.options.chart.type = 'column';
-                vm.weeklyNewUsersChartConfig.options.title.text = 'Daily new Users';
-                vm.weeklyNewUsersChartConfig.series.push({
-                    data: data, name: 'Weekly new Users', dataLabels: {
-                        enabled: true
-                    }
-                });
-                vm.weeklyNewUsersChartConfig.loading = false;
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
@@ -257,55 +262,57 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        vm.getActiveUsers = function (startDate, endDate) {
-            Restangular.one('active_users').get({
+        vm.getDailyActiveUsers = function (startDate, endDate, actions) {
+            Restangular.one('daily_active_users').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
-                    "endDate": endDate.format('YYYY-MM-DD')
+                    "endDate": endDate.format('YYYY-MM-DD'),
+                    "dailyActions": actions
                 }
             ).then(function (resp) {
-                vm.activeUsersData = [];
+                vm.dailyActiveUsersData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.activeUsersData.push([moment(item[1]).valueOf(), item[0]]);
+                    vm.dailyActiveUsersData.push([moment(item[1]).valueOf(), item[0]]);
                 }
-                var data = angular.copy(vm.activeUsersData);
-                vm.activeUsersChartConfig = angular.copy(vm.chartConfig);
-                vm.activeUsersChartConfig.series.push({
-                    data: data, name: 'Active Users', dataLabels: {
+                var data = angular.copy(vm.dailyActiveUsersData);
+                vm.dailyActiveUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.dailyActiveUsersChartConfig.series.push({
+                    data: data, name: 'Daily Active Users', dataLabels: {
                         enabled: true
                     }
                 });
-                vm.activeUsersChartConfig.options.chart.type = null;
-                vm.activeUsersChartConfig.options.title.text = "Active Users";
-                vm.activeUsersChartConfig.loading = false;
+                vm.dailyActiveUsersChartConfig.options.chart.type = null;
+                vm.dailyActiveUsersChartConfig.options.title.text = "Daily Active Users";
+                vm.dailyActiveUsersChartConfig.loading = false;
 
             }).catch(function (e) {
                 toastr.error(e.data.message);
             });
         };
-        vm.getActiveUsersGrowth = function (startDate, endDate) {
-            Restangular.one('active_users_growth').get({
+        vm.getDailyActiveUsersGrowth = function (startDate, endDate, actions) {
+            Restangular.one('daily_active_users_growth').get({
                     "startDate": startDate.format('YYYY-MM-DD'),
-                    "endDate": endDate.format('YYYY-MM-DD')
+                    "endDate": endDate.format('YYYY-MM-DD'),
+                    'dailyActions': actions
                 }
             ).then(function (resp) {
-                vm.activeUsersGrowthData = [];
+                vm.dailyActiveUsersGrowthData = [];
                 for (var i = 0; i < resp.data.length; i += 1) {
                     var item = resp.data[i];
-                    vm.activeUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
+                    vm.dailyActiveUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
                 }
-                var data = angular.copy(vm.activeUsersGrowthData);
-                vm.activeUsersGrowthChartConfig = angular.copy(vm.chartConfig);
-                vm.activeUsersGrowthChartConfig.series.push({
+                var data = angular.copy(vm.dailyActiveUsersGrowthData);
+                vm.dailyActiveUsersGrowthChartConfig = angular.copy(vm.chartConfig);
+                vm.dailyActiveUsersGrowthChartConfig.series.push({
                     data: data, name: 'Active Users Growth', dataLabels: {
                         enabled: true,
                         format: '{point.y:.2f}%'
                     }
                 });
-                vm.activeUsersGrowthChartConfig.options.chart.type = null;
-                vm.activeUsersGrowthChartConfig.options.title.text = "Active Users growth";
-                vm.activeUsersGrowthChartConfig.loading = false;
-                vm.activeUsersGrowthChartConfig.options.tooltip = {
+                vm.dailyActiveUsersGrowthChartConfig.options.chart.type = null;
+                vm.dailyActiveUsersGrowthChartConfig.options.title.text = "Daily Active Users growth";
+                vm.dailyActiveUsersGrowthChartConfig.loading = false;
+                vm.dailyActiveUsersGrowthChartConfig.options.tooltip = {
                     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
                     pointFormat: '<b>{point.y:.2f}%</b> of total<br/>'
                 }
@@ -315,17 +322,93 @@ export class MainController {
                 toastr.error(e.data.message);
             });
         };
-        /*
-         vm.haveAnalytics = function () {
-         var result = true;
-         return Restangular.one('accounts').get().then(function (resp) {
-         $log.info(resp.data)
-         }).catch(function () {
-         result = false;
-         });
+        vm.getWeeklyActiveUsers = function (startDate, endDate, actions) {
+            Restangular.one('weekly_active_users').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD'),
+                    "weeklyActions": actions
+                }
+            ).then(function (resp) {
+                vm.weeklyActiveUsersData = [];
+                for (var i = 0; i < resp.data.length; i += 1) {
+                    var item = resp.data[i];
+                    vm.weeklyActiveUsersData.push([moment(item[1]).valueOf(), item[0]]);
+                }
+                var data = angular.copy(vm.weeklyActiveUsersData);
+                vm.weeklyActiveUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.weeklyActiveUsersChartConfig.series.push({
+                    data: data, name: 'Weekly Active Users', dataLabels: {
+                        enabled: true
+                    }
+                });
+                vm.weeklyActiveUsersChartConfig.options.chart.type = null;
+                vm.weeklyActiveUsersChartConfig.options.title.text = "Weekly Active and engaged Users";
+                vm.weeklyActiveUsersChartConfig.loading = false;
 
-         }
-         */
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        }
+        vm.getWeeklyEngagedUsers = function (startDate, endDate, actions) {
+            Restangular.one('weekly_engaged_users').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD'),
+                    "weeklyActions": actions
+                }
+            ).then(function (resp) {
+                vm.weeklyEngagedUsersData = [];
+                for (var i = 0; i < resp.data.length; i += 1) {
+                    var item = resp.data[i];
+                    vm.weeklyEngagedUsersData.push([moment(item[1]).valueOf(), item[0]]);
+                }
+                var data = angular.copy(vm.weeklyEngagedUsersData);
+                //vm.weeklyEngagedUsersChartConfig = angular.copy(vm.chartConfig);
+                vm.weeklyActiveUsersChartConfig.series.push({
+                    data: data, name: 'Weekly Engaged Users', dataLabels: {
+                        enabled: true
+                    }
+                });
+                //vm.weeklyEngagedUsersChartConfig.options.chart.type = null;
+                //vm.weeklyEngagedUsersChartConfig.options.title.text = "Weekly Engaged Users";
+                //vm.weeklyEngagedUsersChartConfig.loading = false;
+
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        };
+        vm.getWeeklyActiveUsersGrowth = function (startDate, endDate, actions) {
+            Restangular.one('weekly_active_users_growth').get({
+                    "startDate": startDate.format('YYYY-MM-DD'),
+                    "endDate": endDate.format('YYYY-MM-DD'),
+                    'weeklyActions': actions
+                }
+            ).then(function (resp) {
+                vm.weeklyActiveUsersGrowthData = [];
+                for (var i = 0; i < resp.data.length; i += 1) {
+                    var item = resp.data[i];
+                    vm.weeklyActiveUsersGrowthData.push([moment(item[1]).valueOf(), item[0]]);
+                }
+                var data = angular.copy(vm.weeklyActiveUsersGrowthData);
+                vm.weeklyActiveUsersGrowthChartConfig = angular.copy(vm.chartConfig);
+                vm.weeklyActiveUsersGrowthChartConfig.series.push({
+                    data: data, name: 'Active Users Growth', dataLabels: {
+                        enabled: true,
+                        format: '{point.y:.2f}%'
+                    }
+                });
+                vm.weeklyActiveUsersGrowthChartConfig.options.chart.type = null;
+                vm.weeklyActiveUsersGrowthChartConfig.options.title.text = "Weekly Active Users growth";
+                vm.weeklyActiveUsersGrowthChartConfig.loading = false;
+                vm.weeklyActiveUsersGrowthChartConfig.options.tooltip = {
+                    headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                    pointFormat: '<b>{point.y:.2f}%</b> of total<br/>'
+                }
+
+
+            }).catch(function (e) {
+                toastr.error(e.data.message);
+            });
+        }
         function runAll() {
             vm.getNewVisitors(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getGrowthRate(vm.dateRange.startDate, vm.dateRange.endDate);
@@ -333,14 +416,26 @@ export class MainController {
             vm.getBouncesRates(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.getuserBySigninClicks(vm.dateRange.startDate, vm.dateRange.endDate);
             vm.newUsersBySource(vm.dateRange.startDate, vm.dateRange.endDate);
-            vm.weeklyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-            vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
-            vm.getActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate);
-            vm.getActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate);
+            //vm.dailyNewUsers(vm.dateRange.startDate, vm.dateRange.endDate);
+            //vm.getConversionRates(vm.dateRange.startDate, vm.dateRange.endDate);
+            vm.getDailyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.dailyActions);
+            vm.getDailyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, vm.dailyActions);
+            vm.getWeeklyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
+            vm.getWeeklyEngagedUsers(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
+            vm.getWeeklyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, vm.weeklyActions);
         }
 
         if (vm.isAuthenticated()) {
             runAll()
+        }
+        vm.refreshDailyActiveUsers = function (actions) {
+            vm.getDailyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
+            vm.getDailyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, actions);
+        }
+        vm.refreshWeeklyActiveUsers = function (actions) {
+            vm.getWeeklyActiveUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
+            vm.getWeeklyEngagedUsers(vm.dateRange.startDate, vm.dateRange.endDate, actions);
+            vm.getWeeklyActiveUsersGrowth(vm.dateRange.startDate, vm.dateRange.endDate, actions);
         }
 
         vm.dataPickerOptions = {
@@ -364,6 +459,17 @@ export class MainController {
 
         vm.chartConfig = {
             options: {
+                legend: {
+                    align: 'right',
+                    x: -30,
+                    verticalAlign: 'top',
+                    y: 25,
+                    floating: true,
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+                    borderColor: '#CCC',
+                    borderWidth: 1,
+                    shadow: false
+                },
                 chart: {
                     type: 'areaspline',
                     zoomType: 'x',
@@ -386,18 +492,6 @@ export class MainController {
             },
             series: [],
             xAxis: {type: 'datetime'},
-            //yAxis: {min: 0},
-            legend: {
-                enabled: false
-            },
-            /*            plotOptions: {
-             line: {
-             dataLabels: {
-             enabled: true
-             },
-             enableMouseTracking: true
-             }
-             }*/
             loading: true
         };
         vm.pieChartConfig = {

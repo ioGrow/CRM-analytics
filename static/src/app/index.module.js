@@ -1,4 +1,4 @@
-/* global malarkey:false, moment:false, Pace:false */
+/* global malarkey:false, moment:false, Pace:false, Highcharts:false */
 
 import { config } from './index.config';
 import { routerConfig } from './index.route';
@@ -16,6 +16,7 @@ angular.module('CRMAnalytics', ['restangular', 'ui.router', 'toastr', 'highchart
     .constant('malarkey', malarkey)
     .constant('moment', moment)
     .constant('Pace', Pace)
+    .constant('Highcharts', Highcharts)
     .config(config)
     .config(routerConfig)
     .run(runBlock)

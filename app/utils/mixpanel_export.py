@@ -24,7 +24,7 @@ class Mixpanel(object):
         if 'sig' in params: del params['sig']
         params['sig'] = self.hash_args(params)
 
-        request_url = 'http://mixpanel.com/api/2.0/engage/?' + self.unicode_urlencode(params)
+        request_url = 'http://export.mixpanel.com/api/2.0/export/?' + self.unicode_urlencode(params)
 
         request = urllib.urlopen(request_url)
         data = request.read()

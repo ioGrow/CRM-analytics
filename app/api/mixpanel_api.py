@@ -9,53 +9,63 @@ auth = AuthenticationService(config)
 parser = reqparse.RequestParser()
 parser.add_argument('startDate', type=inputs.date, help='Rate cannot be converted')
 parser.add_argument('endDate', type=inputs.date, help='Rate cannot be converted')
-
-
-class WeeklyNewUsers(BaseResource):
-    def get(self):
-        args = parser.parse_args()
-        end_date = args["endDate"].strftime('%Y-%m-%d')
-        start_date = args["startDate"].strftime('%Y-%m-%d')
-        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        weekly_new_users = service.weekly_new_users(start_date, end_date)
-        return {'data': weekly_new_users}
+parser.add_argument('dailyActions', type=int, help='you have to send daily actions')
+parser.add_argument('weeklyActions', type=int, help='you have to send actions')
 
 
 class ClicksByUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"].strftime('%Y-%m-%d')
-        start_date = args["startDate"].strftime('%Y-%m-%d')
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        clicks_by_users = service.sign_in_clicker_and_users_ratio(start_date, end_date)
+        clicks_by_users = service.sign_in_clicker_and_users_ratio(args["startDate"], args["endDate"])
         return {'data': clicks_by_users}
 
 
-class ActiveUsers(BaseResource):
+class DailyActiveUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"].strftime('%Y-%m-%d')
-        start_date = args["startDate"].strftime('%Y-%m-%d')
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.active_users(start_date, end_date)
+        active_users = service.get_daily_active_users(args["startDate"], args["endDate"], args["dailyActions"])
         return {'data': active_users}
 
 
-class ActiveUsersGrowth(BaseResource):
+class DailyActiveUsersGrowth(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"].strftime('%Y-%m-%d')
-        start_date = args["startDate"].strftime('%Y-%m-%d')
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        active_users = service.active_users_growth(start_date, end_date)
+        active_users = service.get_daily_active_users_growth(args["startDate"], args["endDate"], args["dailyActions"])
         return {'data': active_users}
+
+
+class WeeklyActiveUsers(BaseResource):
+    def get(self):
+        args = parser.parse_args()
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        active_users = service.get_weekly_active_users(args["startDate"], args["endDate"], args["weeklyActions"])
+        return {'data': active_users}
+
+
+class WeeklyActiveUsersGrowth(BaseResource):
+    def get(self):
+        args = parser.parse_args()
+        actions = args["weeklyActions"]
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        active_users = service.get_weekly_active_users_growth(args["startDate"], args["endDate"], actions)
+        return {'data': active_users}
+
+
+class EngagedUsers(BaseResource):
+    def get(self):
+        args = parser.parse_args()
+        weekly_actions = args["weeklyActions"]
+        service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
+        engaged_users = service.get_weekly_engaged_users(args["startDate"], args["endDate"], weekly_actions)
+        return {'data': engaged_users}
 
 
 class DailyNewUsers(BaseResource):
     def get(self):
         args = parser.parse_args()
-        end_date = args["endDate"].strftime('%Y-%m-%d')
-        start_date = args["startDate"].strftime('%Y-%m-%d')
         service = MixPanelService(config.get("mixpanel_api_key"), config.get("mixpanel_api_secret"))
-        daily_new_users = service.daily_new_users(start_date, end_date)
+        daily_new_users = service.daily_new_users(args["startDate"], args["endDate"])
         return {'data': daily_new_users}

@@ -1,9 +1,27 @@
-from datetime import date
+from collections import Counter
 
-from app.utils import weeks_between_two_date, get_interval_valid_dates
+from app.utils import get_interval_valid_dates, dic_to_sorted_array, to_growth_rate_list
 from app.utils.mixpanel import Mixpanel
 
 __author__ = 'GHIBOUB Khalid'
+
+
+def get_by_week(active_user, weekly_actions):
+    result = {}
+    i = 0
+    week_actions = 0
+    keys = active_user.keys()
+    keys.sort()
+    for action_date in keys:
+        i += 1
+        if i % 7 == 0:
+            if week_actions >= weekly_actions:
+                result[action_date] = 1 if action_date not in result else result[action_date] + 1
+            week_actions = 0
+            i = 0
+        else:
+            week_actions += active_user[action_date]
+    return result
 
 
 class MixPanelService(object):
@@ -14,31 +32,12 @@ class MixPanelService(object):
             api_secret=api_secret
         )
 
-    def get_event_by_date(self, event, unit, interval, units=0):
-        ee = self.api.request(['events', 'names'], {'type': 'unique'})
-        data = self.api.request(['events'],
-                                {'event': ee, 'unit': unit, 'interval': interval,
-                                 'type': 'unique'}).get('data')
-        result = []
-        for item in data.get('series'):
-            if units == 0:
-                break
-            result.append([data.get('values').get(event).get(item), item])
-            units -= 1
-        return result
-
-    def weekly_new_users(self, start_date, end_date):
-        today = str(date.today())
-        interval = weeks_between_two_date(start_date, today)
-        weeks = weeks_between_two_date(start_date, end_date)
-        return self.get_event_by_date('SIGNED_UP_SUCCESS', 'week', interval, weeks)
-
     def daily_new_users(self, start_date, end_date):
-        dates, interval = get_interval_valid_dates(end_date, start_date)
+        dates, interval = get_interval_valid_dates(start_date, end_date)
         return self.get_event_by_date('SIGNED_UP_SUCCESS', 'day', interval, dates)
 
     def daily_sign_in_clicks(self, start_date, end_date):
-        dates, interval = get_interval_valid_dates(end_date, start_date)
+        dates, interval = get_interval_valid_dates(start_date, end_date)
         return self.get_event_by_date('SIGNIN_CLICK', 'day', interval, dates)
 
     def sign_in_clicker_and_users_ratio(self, start_date, end_date):
@@ -52,44 +51,89 @@ class MixPanelService(object):
             result.append(item)
         return result
 
-    def active_users(self, start_date, end_date):
-        units, interval = get_interval_valid_dates(end_date, start_date)
-        resp = []
-        result = self.get_active_users(interval, 1)
-        keys = result.keys()
-        keys.sort()
-        for key in keys:
-            if units == 0:
-                break
-            resp.append([result[key], key])
-            units -= 1
-        return resp
+    def get_daily_active_users_growth(self, start_date, end_date, daily_actions):
+        return to_growth_rate_list(self.get_daily_active_users(start_date, end_date, daily_actions))
 
-    def active_users_growth(self, start_date, end_date):
-        units, interval = get_interval_valid_dates(end_date, start_date)
-        resp = []
-        result = self.get_active_users(interval, 1)
-        keys = result.keys()
-        keys.sort()
-        last_key = None
-        for key in keys:
-            if units == 0:
-                break
-            if last_key:
-                rate = ((result[key] - result[last_key]) * 100) / float(result[key])
-                resp.append([rate, key])
-            units -= 1
-            last_key = key
-        return resp
+    def get_weekly_active_users_growth(self, start_date, end_date, weekly_actions):
+        return to_growth_rate_list(self.get_weekly_active_users(start_date, end_date, weekly_actions))
 
-    def get_active_users(self, interval, actions):
+    def get_daily_active_users(self, start_date, end_date, daily_actions):
         result = {}
-        data = self.api.request(['events', 'properties'],
-                                {'event': '$custom_event:100587', 'unit': 'day', 'interval': interval, 'name': 'email',
-                                 'type': 'general'}).get('data')
-
+        data = self.active_users_req(start_date, end_date)
         for email, actions_data in data.get('values').iteritems():
-            for action_date, actions_count in actions_data.iteritems():
-                if actions_count > actions:
+            keys = actions_data.keys()
+            keys.sort()
+            for action_date in keys:
+                if actions_data.get(action_date) >= daily_actions:
                     result[action_date] = 1 if action_date not in result else result[action_date] + 1
+        return dic_to_sorted_array(result)
+
+    def get_weekly_active_users(self, start_date, end_date, weekly_actions):
+        result = {}
+        data = self.active_users_req(start_date, end_date)
+        for email, actions_data in data.get('values').iteritems():
+            i = 0
+            week_actions = 0
+            keys = actions_data.keys()
+            keys.sort()
+            for action_date in keys:
+                i += 1
+                if i % 7 == 0:
+                    if week_actions >= weekly_actions:
+                        result[action_date] = 1 if action_date not in result else result[action_date] + 1
+                    week_actions = 0
+                    i = 0
+                else:
+                    week_actions += actions_data.get(action_date)
+
+        return dic_to_sorted_array(result)
+
+    def active_users_req(self, start_date, end_date):
+        return self.segment_request(start_date, end_date, '$custom_event:100587', 'email')
+
+    def get_weekly_engaged_users(self, start_date, end_date, weekly_actions):
+        result = {}
+        created_users = self.new_users_req(start_date, end_date).get("results")
+        active_users = self.active_users_req(start_date, end_date).get('values')
+
+        for user in created_users:
+            user_email = user['$properties']['$email']
+            if user_email in active_users:
+                result.update(Counter(get_by_week(active_users[user_email], weekly_actions)) + Counter(result))
+        return dic_to_sorted_array(result)
+
+    def new_users_req(self, start_date, end_date):
+        s_date = start_date.strftime('%Y-%m-%d')
+        e_date = end_date.strftime('%Y-%m-%d')
+        expression = 'not "iogrow.com" in properties["$email"] and properties["$created"] >= datetime("' \
+                     + s_date + '") and properties["$created"] <=  datetime("' + e_date + '")'
+        created_users = self.api.request(['engage'], {'selector': expression})
+        return created_users
+
+    def segment_request(self, start_date, end_date, event, on_property=None, expression=None):
+        s_date = start_date.strftime('%Y-%m-%d')
+        e_date = end_date.strftime('%Y-%m-%d')
+
+        filter_exp = 'not "iogrow.com" in properties["email"] ' \
+                     'and "iogrow.com" in properties["$current_url"]'
+
+        params = {'event': event, 'from_date': s_date, 'to_date': e_date, 'limit': 2000, 'type': 'general',
+                  'where': filter_exp}
+        if on_property:
+            params.update({'on': 'properties["' + on_property + '"]'})
+        if expression:
+            params.update({'where': expression + ' and ' + filter_exp})
+
+        return self.api.request(['segmentation'], params).get('data')
+
+    def get_event_by_date(self, event, unit, interval, units):
+        data = self.api.request(['events'],
+                                {'event': [event], 'unit': unit, 'interval': interval,
+                                 'type': 'unique'}).get('data')
+        result = []
+        for item in data.get('series'):
+            if units == 0:
+                break
+            result.append([data.get('values').get(event).get(item), item])
+            units -= 1
         return result
