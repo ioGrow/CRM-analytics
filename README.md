@@ -1,26 +1,19 @@
 # [CRM Analytics](https://github.com/ioGrow/CRM-analytics)
 ***
+## Requirements
+---------------
+  - [Google App Engine SDK for Python](https://cloud.google.com/appengine/downloads)
+  - [Node.js](https://nodejs.org/download/)
+  - [Bower](http://bower.io/#install-bower)
+  - [fabric](http://www.fabfile.org/installing.html)
+  
+Make sure you have all of the above or refer to the docs on how to
+[install the requirements](http://docs.gae-init.appspot.com/requirement/).
 ## Quick Start
 
-create a python virtual environment called venv inside your app 
-
 ```sh
-$ sudo pip install virtualenv
-$ virtualenv venv
-$ source venv/bin/activate
-$ pip install -r requirements.txt
+$ cd CRM-analytics
+$ fab install
 ```
-
-Install [Node.js](https://nodejs.org/download/) and then:
-
-```sh
-$ sudo npm -g install gulp  bower
-$ cd static
-$ npm install
-$ bower install
-$ gulp serve
-```
-
-Finally, setup the google_appengine sdk end python interpreter then run the app in your browser.
 
 Happy hacking!
