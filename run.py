@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
 import platform
 import shutil
 import socket
 import sys
 import urllib2
 from datetime import datetime
-from distutils import spawn
 
 import argparse
+
+import os
+from distutils import spawn
 
 ###############################################################################
 # Options
@@ -205,7 +206,7 @@ def install_dependencies():
 ###############################################################################
 # Doctor
 ###############################################################################
-def internet_on():
+def is_internet_on():
     try:
         urllib2.urlopen(INTERNET_TEST_URL, timeout=2)
         return True
@@ -249,7 +250,7 @@ def find_gae_path():
 
 
 def check_internet():
-    return internet_on(), 'Internet', ''
+    return is_internet_on(), 'Internet', ''
 
 
 def check_gae():
@@ -272,8 +273,16 @@ def check_virtualenv():
     return bool(spawn.find_executable('virtualenv')), 'virtualenv', '#virtualenv'
 
 
+def check_bower():
+    return bool(spawn.find_executable('bower')), 'bower', '#bower'
+
+
+def check_gulp():
+    return bool(spawn.find_executable('gulp')), 'gulp', '#gulp'
+
+
 def doctor_says_ok():
-    checkers = [check_gae, check_git, check_nodejs, check_pip, check_virtualenv]
+    checkers = [check_gae, check_git, check_nodejs, check_pip]
     if False in [check_requirement(check) for check in checkers]:
         sys.exit(1)
     return check_requirement(check_internet)
