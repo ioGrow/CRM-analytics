@@ -2,11 +2,11 @@
 ***
 ## Requirements
 ---------------
-  - [Google App Engine SDK for Python](https://cloud.google.com/appengine/downloads)
+  - [pip](https://pip.pypa.io/en/stable/installing/#install-pip)
+  - [virtualenv](http://virtualenv.readthedocs.org/en/latest/installation.html)
+  - [fabric](http://www.fabfile.org/installing.html)
   - [Node.js](https://nodejs.org/)
   - [Bower](http://bower.io/#install-bower)
-  - [pip](https://pip.pypa.io/en/stable/installing/#install-pip)
-  - [fabric](http://www.fabfile.org/installing.html)
   
 ## Quick Start
 
