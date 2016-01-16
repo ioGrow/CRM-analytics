@@ -3,11 +3,11 @@ from datetime import datetime
 
 from apiclient.errors import HttpError
 
-from app.api import BaseResource
-from app.config import config
-from app.models.google_credential import GoogleAnalyticsCredential
-from app.services.google_analytics_service import GoogleAnalyticsService
-from app.services.mixpanel_service import MixPanelService
+from api import BaseResource
+from config import config
+from models.google_credential import GoogleAnalyticsCredential
+from services.google_analytics_service import GoogleAnalyticsService
+from services.mixpanel_service import MixPanelService
 from flask.ext.restful import inputs
 from flask_restful import reqparse, abort
 
@@ -23,9 +23,6 @@ class Profile(BaseResource):
 
 
 class Property(BaseResource):
-    def __init__(self):
-        super(Property, self).__init__()
-
     def get(self):
         try:
             service = GoogleAnalyticsService(self.g_credential)

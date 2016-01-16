@@ -1,6 +1,6 @@
-from app.config import config
-from app.models.google_credential import GoogleCredential
-from app.services.authentication_service import AuthenticationService
+from config import config
+from models.google_credential import GoogleCredential
+from services.authentication_service import AuthenticationService
 from flask import g
 from flask.ext.restful import Resource, abort
 

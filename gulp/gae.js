@@ -4,7 +4,7 @@ var gulp = require('gulp'),
   gae = require('gulp-gae');
 
 gulp.task('gae-serve', function () {
-  gulp.src('../app.yaml')
+  gulp.src('app/app.yaml')
     .pipe(gae('dev_appserver.py', [], {
       port: 8070,
       host: 'localhost',

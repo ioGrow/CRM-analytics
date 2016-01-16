@@ -5,6 +5,7 @@
         "angular-sanitize": "~1.4.2",
         "angular-messages": "~1.4.2",
         "jquery": "~2.1.4",
+        "lodash":"3.10.1",
         "restangular": "~1.5.1",
         "angular-ui-router": "~0.2.15",
         "bootstrap-sass": "~3.3.5",
@@ -69,6 +70,7 @@
     },
     "resolutions": {
         "jquery": "~2.1.4",
-        "angular": "~1.4.2"
+        "angular": "~1.4.2",
+        "lodash":"3.10.1"
     }
 }

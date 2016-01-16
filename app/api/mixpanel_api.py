@@ -1,7 +1,7 @@
-from app.api import BaseResource
-from app.config import config
-from app.services.authentication_service import AuthenticationService
-from app.services.mixpanel_service import MixPanelService
+from api import BaseResource
+from config import config
+from services.authentication_service import AuthenticationService
+from services.mixpanel_service import MixPanelService
 from flask.ext.restful import inputs
 from flask.ext.restful import reqparse
 

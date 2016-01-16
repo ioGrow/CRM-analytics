@@ -2,7 +2,7 @@ import httplib2
 from apiclient.discovery import build
 from datetime import timedelta
 
-from app.utils.str_opts import join_list
+from utils.str_opts import join_list
 from flask.ext.restful import abort
 from oauth2client import client
 

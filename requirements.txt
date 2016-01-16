@@ -1,0 +1,6 @@
+requests==2.3
+flask-restful==0.3.5
+flask==0.10.1
+PyJWT==1.4.0
+google-api-python-client==1.4.2
+python-intercom==2.1.1

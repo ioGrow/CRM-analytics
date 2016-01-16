@@ -1,6 +1,6 @@
-from app.api import BaseResource
-from app.config import config
-from app.services.intercom_service import IntercomService
+from api import BaseResource
+from config import config
+from services.intercom_service import IntercomService
 from flask.ext.restful import inputs
 from flask_restful import reqparse
 

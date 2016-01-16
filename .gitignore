@@ -1,15 +1,13 @@
 # Created by .ignore support plugin (hsz.mobi)
-/static/node_modules
-/static/bower_components
+app/static/bower_components
 node_modules/
 bower_components/
-/venv/
 coverage/
 .sass-cache/
 .idea/
 .tmp/
 dist/
-
+temp/
 # Packages
 *.egg
 *.egg-info
@@ -22,9 +20,9 @@ var
 sdist
 develop-eggs
 .installed.cfg
-
 # Installer logs
 pip-log.txt
+npm-debug.log
 
 # Unit test / coverage reports
 .coverage
@@ -50,3 +48,8 @@ Vagrantfile
 node_modules
 
 *.pyc
+app/index.yaml
+app/lib
+app/lib.zip
+app/static/
+main/static/min

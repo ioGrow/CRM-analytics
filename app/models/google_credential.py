@@ -1,6 +1,6 @@
 from google.appengine.ext import ndb
 
-from app.models import BaseModel
+from models import BaseModel
 
 __author__ = 'GHIBOUB Khalid'
 

@@ -1,8 +1,8 @@
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 
-from app.utils import get_interval_valid_dates, dic_to_sorted_array, to_growth_rate_list
-from app.utils.mixpanel import Mixpanel
+from utils import get_interval_valid_dates, dic_to_sorted_array, to_growth_rate_list
+from utils.mixpanel import Mixpanel
 
 __author__ = 'GHIBOUB Khalid'
 
@@ -23,6 +23,25 @@ def get_by_period(active_user, period_actions, days):
             i = 0
 
     return result
+
+
+# def engaged_get_by_period(active_user, period_actions, days):
+#     result = defaultdict(int)
+#     i = 0
+#     actions = 0
+#     keys = active_user.keys()
+#     keys.sort()
+#     for action_date in keys:
+#         i += 1
+#         actions += active_user[action_date]
+#         if i % days == 0:
+#             if actions >= period_actions:
+#                 result[action_date] += 1
+#                 break
+#             actions = 0
+#             i = 0
+#
+#     return result
 
 
 class MixPanelService(object):
@@ -77,10 +96,9 @@ class MixPanelService(object):
         return dic_to_sorted_array(result)
 
     def get_churn_users(self, months=1):
-        last_two_moths = (datetime.today() - timedelta(days=30 + 30 * months)).strftime('%Y-%m-%d')
+        # last_two_moths = (datetime.today() - timedelta(days=30 + 30 * months)).strftime('%Y-%m-%d')
         last_month = (datetime.today() - timedelta(days=30 * months)).strftime('%Y-%m-%d')
-        created_users_exp = 'not "iogrow.com" in properties["$email"] and properties["$created"] >= datetime("' \
-                            + last_two_moths + '") and properties["$created"] <=  datetime("' \
+        created_users_exp = 'not "iogrow.com" in properties["$email"] and  properties["$created"] <=  datetime("' \
                             + last_month + '")'
         still_active_exp = created_users_exp + ' and properties["$last_seen"] >= datetime("' + last_month + '")'
 
@@ -130,7 +148,7 @@ class MixPanelService(object):
 
     def get_life_time_churned_users(self):
         result = []
-        for i in range(0, 3):
+        for i in xrange(0, 3):
             churn = self.get_churn_users(3 - i)
             date = (datetime.today() - timedelta(days=30 * (2 - i))).strftime('%Y-%m-%d')
             churn_users = churn[0][1]
