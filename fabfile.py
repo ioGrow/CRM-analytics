@@ -9,9 +9,12 @@ __author__ = 'GHIBOUB Khalid'
 """
 
 
-def start():
+def install():
     local("python run.py -d")
+    local("npm install")
+    local("bower install")
+    local("gulp serve-gae")
 
 
 def run():
-    local("python run.py -s -o localhost -p 8070")
+    local("gulp serve-gae")
