@@ -7,11 +7,11 @@
   - [Bower](http://bower.io/#install-bower)
   - [fabric](http://www.fabfile.org/installing.html)
   
-Make sure you have all of the above or refer to the docs on how to
-[install the requirements](http://docs.gae-init.appspot.com/requirement/).
+Make sure you have all of the above requirements are fully installed.
 ## Quick Start
 
 ```sh
+$ git clone https://github.com/ioGrow/CRM-analytics.git
 $ cd CRM-analytics
 $ fab install
 ```
